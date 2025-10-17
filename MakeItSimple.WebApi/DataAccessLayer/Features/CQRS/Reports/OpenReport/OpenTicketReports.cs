@@ -41,7 +41,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
 
                     .AsSplitQuery()
                     .Where(x => x.IsApprove == true && x.IsClosedApprove != true && x.OnHold != true && x.IsTransfer != true && x.IsDone != true)
-                    .Where(x => x.DateApprovedAt.Value.Date >= request.Date_From.Value.Date && x.DateApprovedAt.Value.Date <= request.Date_To.Value.Date)
+                    //.Where(x => x.DateApprovedAt.Value.Date >= request.Date_From.Value.Date && x.DateApprovedAt.Value.Date <= request.Date_To.Value.Date)
 
                     .Select(t => new OpenTicketReportsResult
                     {

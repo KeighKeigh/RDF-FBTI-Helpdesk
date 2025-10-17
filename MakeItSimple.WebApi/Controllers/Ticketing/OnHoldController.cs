@@ -1,16 +1,17 @@
-﻿using MakeItSimple.WebApi.Common.Extension;
-using MakeItSimple.WebApi.Common;
+﻿using MakeItSimple.WebApi.Common;
+using MakeItSimple.WebApi.Common.Extension;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.OnHoldTicket.GetOnHoldApprover.GetOnHoldApprover;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OnHoldTicket.Approval_On_Hold.ApprovalOnHold;
-using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OnHoldTicket.CreateOnHold.CreateOnHoldTicket;
-using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OnHoldTicket.ResumeOnHold.ResumeOnHoldTicket;
-using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OnHoldTicket.Get_OnHold.GetOnHold;
-using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TransferTicket.CancelTransferTicket;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OnHoldTicket.Cancel_On_Hold.CancelOnHold;
-using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TransferTicket.RejectTransfer.RejectTransferTicket;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OnHoldTicket.CreateOnHold.CreateOnHoldTicket;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OnHoldTicket.Get_OnHold.GetOnHold;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OnHoldTicket.Reject_On_Hold.RejectOnHold;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OnHoldTicket.ResumeOnHold.ResumeOnHoldTicket;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TransferTicket.CancelTransferTicket;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TransferTicket.RejectTransfer.RejectTransferTicket;
 
 namespace MakeItSimple.WebApi.Controllers.Ticketing
 {
@@ -215,6 +216,61 @@ namespace MakeItSimple.WebApi.Controllers.Ticketing
             {
                 return Conflict(ex.Message);
             }
+        }
+
+        [HttpGet("page_on_hold")]
+        public async Task<IActionResult> GetOnHoldTicket([FromQuery] GetOnHoldApproverQuery query)
+        {
+            try
+            {
+                if (User.Identity is ClaimsIdentity identity)
+                {
+                    var userRole = identity.FindFirst(ClaimTypes.Role);
+                    if (userRole != null)
+                    {
+                        query.Role = userRole.Value;
+                    }
+
+                    if (Guid.TryParse(identity.FindFirst("id")?.Value, out var userId))
+                    {
+                        query.UserId = userId;
+                    }
+                }
+
+                var onholdTicket = await _mediator.Send(query);
+
+                Response.AddPaginationHeader(
+
+                onholdTicket.CurrentPage,
+                onholdTicket.PageSize,
+                onholdTicket.TotalCount,
+                onholdTicket.TotalPages,
+                onholdTicket.HasPreviousPage,
+                onholdTicket.HasNextPage
+
+                );
+
+                var result = new
+                {
+                    onholdTicket,
+                    onholdTicket.CurrentPage,
+                    onholdTicket.PageSize,
+                    onholdTicket.TotalCount,
+                    onholdTicket.TotalPages,
+                    onholdTicket.HasPreviousPage,
+                    onholdTicket.HasNextPage
+                };
+
+                var successResult = Result.Success(result);
+
+
+                return Ok(successResult);
+            }
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
+            }
+
         }
 
     }

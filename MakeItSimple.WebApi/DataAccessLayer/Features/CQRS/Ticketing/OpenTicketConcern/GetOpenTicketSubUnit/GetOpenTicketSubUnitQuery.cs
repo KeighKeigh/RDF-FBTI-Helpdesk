@@ -12,6 +12,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.OpenTicket
             public string TicketStatus { get; set; }
             public string Role { get; set; }
             public string Search { get; set; }
+            public bool? AscendingDate { get; set; }
         }
     }
 }

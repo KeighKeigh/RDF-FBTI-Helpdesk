@@ -31,7 +31,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.TransferReport
                     .ThenInclude(x => x.User)
                     .Include(x => x.TicketConcern)
                     .ThenInclude(x => x.RequestConcern)
-                    .AsSplitQuery();
+                    .AsSplitQuery().OrderBy(x => x.Current_Target_Date);
 
                 if (request.ServiceProvider is not null)
                 {
@@ -65,9 +65,10 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.TransferReport
                         Concern_Details = x.TicketConcern.RequestConcern.Concern,
                         Transfered_By = x.TransferByUser.Fullname,
                         Transfered_To = x.TransferToUser.Fullname,
-                        Current_Target_Date = x.Current_Target_Date.Value.Date,
-                        Target_Date = x.TicketConcern.TargetDate,
-                        Transfer_At = x.TransferAt,
+                        Requested_Date = x.TicketConcern.CreatedAt,
+                        New_Target_Date = x.Current_Target_Date.Value.Date,
+                        Previous_Target_Date = x.TicketConcern.TargetDate,
+                        Approved_At = x.TransferAt,
                         Transfer_Remarks = x.TransferRemarks,
                         Remarks = x.TransferRemarks,
                         Modified_By = x.ModifiedByUser.Fullname,

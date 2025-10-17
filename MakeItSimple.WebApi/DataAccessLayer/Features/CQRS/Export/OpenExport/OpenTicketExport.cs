@@ -23,7 +23,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OpenExport
                     .AsNoTrackingWithIdentityResolution()
                     .AsSplitQuery()
                     .Where(x => x.IsApprove == true && x.IsClosedApprove != true && x.OnHold != true && x.IsTransfer != true)
-                    .Where(x => x.TargetDate.Value.Date >= request.Date_From.Value.Date && x.TargetDate.Value.Date <= request.Date_To.Value.Date)
+                    //.Where(x => x.TargetDate.Value.Date >= request.Date_From.Value.Date && x.TargetDate.Value.Date <= request.Date_To.Value.Date)
                     .Select(t => new OpenTicketExportResult
                     {
                         UserId = t.UserId,

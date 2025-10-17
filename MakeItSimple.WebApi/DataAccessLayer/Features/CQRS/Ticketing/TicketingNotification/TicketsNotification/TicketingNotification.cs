@@ -488,7 +488,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                 var ticketConcernList = await _context.TicketConcerns
                     .AsNoTrackingWithIdentityResolution()
                     .Where(x => x.RequestConcern.Is_Confirm == null
-                    && x.RequestConcern.ConcernStatus == TicketingConString.NotConfirm && x.AssignTo == request.UserId)
+                    && x.RequestConcern.ConcernStatus == TicketingConString.NotConfirm)
                     .Select(x => new
                     {
                         x.Id,
@@ -504,30 +504,40 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                 {
                     return Result.Success(notification);
                 }
-
+                var now = DateTime.Now;
                 foreach (var confirm in ticketConcernList)
                 {
 
-                    //int hoursDifference = 24;
-                    //int hourConvert = 0;
-                    TimeSpan daysClose = DateTime.Now - confirm.Closed_At.Value;
 
-                    double totalHours = Math.Abs(daysClose.TotalHours);
+                    //TimeSpan daysClose = DateTime.Now - confirm.Closed_At.Value;
 
-                    //if (daysClose >= 1)
-                    //{
-                    //    daysClose = daysClose * hoursDifference;
-                    //}
+                    //double totalHours = Math.Abs(daysClose.TotalHours);
 
-                    // var hourConvert = (daysClose - confirm.Closed_At.Value.Hour) + DateTime.Now.Hour;
 
-                    DayOfWeek todayWeek = DateTime.Now.DayOfWeek;
-                    //DayOfWeek exceptSat = DayOfWeek.Saturday;
-                    //DayOfWeek exceptSun = DayOfWeek.Sunday;
+                    //DayOfWeek todayWeek = DateTime.Now.DayOfWeek;
 
-                    if (totalHours >= 24 && todayWeek != DayOfWeek.Saturday && todayWeek != DayOfWeek.Sunday)
+                    DateTime confirmationDeadline;
+
+                    if (confirm.Closed_At.Value.DayOfWeek == DayOfWeek.Friday)
+                    {
+                        confirmationDeadline = confirm.Closed_At.Value.AddDays(3);
+                    }
+                    else if (confirm.Closed_At.Value.DayOfWeek == DayOfWeek.Saturday)
+                    {
+                        confirmationDeadline = confirm.Closed_At.Value.AddDays(2);
+                    }
+                    else 
+                    {
+                        confirmationDeadline = confirm.Closed_At.Value.AddDays(1);
+                    }
+
+
+
+                    //if (totalHours >= 24 && todayWeek != DayOfWeek.Saturday && todayWeek != DayOfWeek.Sunday)
+                    if(now >= confirmationDeadline)
                     {
                         var requestConcern = await _context.RequestConcerns
+                            .AsNoTracking()
                             .FirstOrDefaultAsync(x => x.Id == confirm.RequestConcernId);
 
                         requestConcern.Is_Confirm = true;
@@ -535,6 +545,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                         requestConcern.ConcernStatus = TicketingConString.Done;
 
                         var ticketHistory = await _context.TicketHistories
+                            .AsNoTracking()
                             .Where(x => x.TicketConcernId == confirm.Id)
                             .Where(x => x.IsApprove == null && x.Request.Contains(TicketingConString.NotConfirm))
                             .FirstOrDefaultAsync();
@@ -542,10 +553,10 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                         if (ticketHistory != null)
                         {
                             ticketHistory.TicketConcernId = confirm.Id;
-                            ticketHistory.TransactedBy = request.UserId;
+                            ticketHistory.TransactedBy = null;
                             ticketHistory.TransactionDate = DateTime.Now;
-                            ticketHistory.Request = TicketingConString.Confirm;
-                            ticketHistory.Status = TicketingConString.CloseConfirm;
+                            ticketHistory.Request = "Auto Confirm";
+                            ticketHistory.Status = "Ticket has been auto confirmed by the system";
                         }
 
                         var addNewTicketTransactionNotification = new TicketTransactionNotification

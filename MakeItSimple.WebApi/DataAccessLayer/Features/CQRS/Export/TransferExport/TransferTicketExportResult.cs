@@ -11,13 +11,14 @@
             public string Concern_Details { get; set; }
             public string Transfered_By { get; set; }
             public string Transfered_To { get; set; }
-            public DateTime Current_Target_Date { get; set; }
-            public DateTime? Target_Date { get; set; }
-            public DateTime? Transfer_At { get; set; }
+            public string Requested_Date { get; set; }
+            public string New_Target_Date { get; set; }
+            public string Previous_Target_Date { get; set; }
+            public string Transfer_At { get; set; }
             public string Transfer_Remarks { get; set; }
             public string Remarks { get; set; }
             public string Modified_By { get; set; }
-            public DateTime? Updated_At { get; set; }
+            public string Updated_At { get; set; }
             public string ApprovedBy { get; set; }
             public int? ChannnelId { get; set; }
             public string ChannnelName { get; set; }

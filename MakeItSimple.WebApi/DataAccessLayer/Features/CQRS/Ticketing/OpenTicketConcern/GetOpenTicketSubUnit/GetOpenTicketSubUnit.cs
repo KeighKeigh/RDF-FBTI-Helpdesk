@@ -29,6 +29,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.OpenTicket
                     .AsNoTrackingWithIdentityResolution()
                     .AsSplitQuery();
 
+                
 
                 if (!string.IsNullOrEmpty(request.TicketStatus))
                 {
@@ -117,8 +118,16 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.OpenTicket
                     }
                 }
 
+
+                if(request.AscendingDate == true)
+                {
+                    openTicketsQuery = openTicketsQuery.OrderBy(x => x.TargetDate);
+                }
+                else
+                {
+                    openTicketsQuery = openTicketsQuery.OrderByDescending(x => x.TargetDate);
+                }
                 var results = openTicketsQuery
-                    .OrderByDescending(x => x.TargetDate)
                     .Select(x => new GetOpenTicketSubUnitResult
                     {
                         TicketConcernId = x.Id,

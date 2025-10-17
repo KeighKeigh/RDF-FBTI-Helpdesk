@@ -173,7 +173,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.ClosedTick
 
                 var addForConfirmationHistory = new TicketHistory
                 {
-                    TicketConcernId = closingTicketExist.TicketConcernId,
+                    TicketConcernId = ticketConcernExist.Id,
                     TransactedBy = closingTicketExist.TicketConcern.RequestorBy,
                     TransactionDate = DateTime.Now,
                     Request = TicketingConString.NotConfirm,

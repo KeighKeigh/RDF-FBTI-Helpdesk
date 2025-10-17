@@ -115,6 +115,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TransferTicket.
                             UserId = transferTicketExist.TransferTo,
                             AssignTo = transferTicketExist.TransferTo,
                             ApprovedDateBy = command.Users,
+                            //TransferAt = dateToday,
+                            
 
                         };
 
@@ -159,6 +161,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TransferTicket.
                     .FirstOrDefaultAsync(x => x.Id == transferTicketConcern.TicketConcernId);
 
                 ticketConcernExist.IsTransfer = true;
+                ticketConcernExist.TransferAt = DateTime.Now;
+                ticketConcernExist.TransferBy = transferTicketConcern.TicketConcern.UserId;
                 ticketConcernExist.Remarks = transferTicketConcern.TransferRemarks;
                 ticketConcernExist.UserId = command.Transfer_To;
                 ticketConcernExist.TargetDate = command.Target_Date;

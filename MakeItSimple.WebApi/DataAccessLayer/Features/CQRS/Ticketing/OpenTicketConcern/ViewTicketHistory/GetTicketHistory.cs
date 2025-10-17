@@ -29,15 +29,16 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OpenTicketConce
                     .Include(x => x.TicketConcern)
                     .AsSplitQuery()
                     .Where(x => x.TicketConcernId == request.TicketConcernId)
+                    //.OrderBy(x => x.TransactionDate)
                     .GroupBy(x => x.TicketConcernId).Select(x => new GetTicketHistoryResult
                     {
                         TicketConcernId = x.Key,
-                        GetTicketHistoryConcerns = x.OrderByDescending(x => x.Id)
+                        GetTicketHistoryConcerns = x.OrderByDescending(x => x.TransactionDate)
                         .Where(x => !x.Request.Contains(TicketingConString.Approval) && !x.Request.Contains(TicketingConString.NotConfirm))
                         .Select(x => new GetTicketHistoryConcern
                         {
                             TicketHistoryId = x.Id,
-                            Transacted_By = x.TransactedByUser.Fullname,
+                            Transacted_By = x.TransactedByUser.Fullname ?? "SYSTEM CONFIRMED",
                             Request = x.Request,
                             Status = x.Status,
                             Transaction_Date = x.TransactionDate,

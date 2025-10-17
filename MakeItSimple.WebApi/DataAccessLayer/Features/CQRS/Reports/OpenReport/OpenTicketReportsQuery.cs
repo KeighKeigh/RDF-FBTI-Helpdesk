@@ -12,8 +12,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
             public int? ServiceProvider { get; set; }
             public int? Channel { get; set; }
             public Guid? UserId { get; set; }
-            public DateTime? Date_From { get; set; }
-            public DateTime? Date_To { get; set; }
+            //public DateTime? Date_From { get; set; }
+            //public DateTime? Date_To { get; set; }
 
         }
     }

@@ -30,7 +30,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                     .Include(t => t.RequestConcern)
                     .AsSplitQuery()
                     .Where(t => t.IsApprove == true && t.IsTransfer != true && t.IsClosedApprove != true && t.OnHold != true && t.IsDone != true)
-                    .Where(t => t.DateApprovedAt.Value.Date >= request.Date_From.Value.Date && t.DateApprovedAt.Value.Date <= request.Date_To.Value.Date)
+                    .Where(t => t.CreatedAt.Date >= request.Date_From.Value.Date && t.CreatedAt.Date <= request.Date_To.Value.Date)
                     .Select(o => new AllTicketReportsResult
                     {
 
@@ -86,7 +86,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                     .ThenInclude(c => c.RequestConcern)
                     .AsSplitQuery()
                     .Where(x => x.IsTransfer == true && x.IsActive == true)
-                    .Where(t => t.TransferAt.Value.Date >= request.Date_From.Value.Date && t.TransferAt.Value.Date <= request.Date_To.Value.Date)
+                    .Where(t => t.TicketConcern.CreatedAt.Date >= request.Date_From.Value.Date && t.TicketConcern.CreatedAt.Date <= request.Date_To.Value.Date)
                     .Select(ct => new AllTicketReportsResult
                     {
                         TicketConcernId = ct.TicketConcernId.ToString(),
@@ -135,7 +135,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                     .ThenInclude(c => c.RequestConcern)
                     .AsSplitQuery()
                     .Where(x => x.IsHold == true && x.IsActive == true)
-                    .Where(t => t.CreatedAt.Date >= request.Date_From.Value.Date && t.CreatedAt.Date <= request.Date_To.Value.Date)
+                    .Where(t => t.TicketConcern.CreatedAt.Date >= request.Date_From.Value.Date && t.TicketConcern.CreatedAt.Date <= request.Date_To.Value.Date)
                     .Select(ct => new AllTicketReportsResult
                     {
                         TicketConcernId = ct.TicketConcernId.ToString(),
@@ -185,7 +185,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                     .ThenInclude(c => c.RequestConcern)
                     .AsSplitQuery()
                     .Where(x => x.IsActive == true && x.IsClosing == true)
-                    .Where(t => t.ClosingAt.Value.Date >= request.Date_From.Value.Date && t.ClosingAt.Value.Date <= request.Date_To.Value.Date )
+                    .Where(t => t.TicketConcern.CreatedAt.Date >= request.Date_From.Value.Date && t.TicketConcern.CreatedAt.Date <= request.Date_To.Value.Date )
                     .Select(ct => new AllTicketReportsResult
                     {
                         TicketConcernId = ct.TicketConcernId.ToString(),
