@@ -146,7 +146,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.TicketCrea
 
                         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-
+                        await unitOfWork.RequestTicket.UpdateAttachmentForCherryPicking(addNewDateApproveConcern, cancellationToken);
 
                         var addNewApprover = new ApproverTicketing
                         {
@@ -176,7 +176,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.TicketCrea
                         await unitOfWork.RequestTicket.CreateTicketHistory(assignedTicketHistory, cancellationToken);
 
 
-
+                        
                         //kk
                         if (command.TargetDate.Value.Date > approvedDate.Date)
                         {
@@ -202,7 +202,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.TicketCrea
                             {
                                 TicketConcernId = ticketConcernIdExist.Id,
                                 TransactedBy = handlerIds.ApproverId,
-                                TransactionDate = DateTime.Now,
+                                TransactionDate = null,
                                 Request = TicketingConString.ForApprovalTicket,
                                 Status = $"{TicketingConString.ForApprovalDate}"
                             };

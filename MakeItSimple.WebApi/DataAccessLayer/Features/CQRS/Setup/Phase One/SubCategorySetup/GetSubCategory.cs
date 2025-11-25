@@ -15,6 +15,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.SubCategorySet
             public string SubCategory_Description { get; set; }
             public int? CategoryId { get; set; }
             public string Category_Description { get; set; }
+            public int? ChannelId { get; set; }
+            public string ChannelName { get; set; }
             public bool Is_Active { get; set; }
             public string Added_By { get; set; }
             public DateTime Created_At { get; set; }
@@ -42,8 +44,12 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.SubCategorySet
             {
                 IQueryable<SubCategory> subCategoriesQuery = _context.SubCategories
                     .AsNoTracking()
+                    .Include(x => x.Category)
+                    .ThenInclude(x => x.Channel)
                     .Include(x => x.AddedByUser)
-                    .Include(x => x.ModifiedByUser).Include(x => x.Category);
+                    .Include(x => x.ModifiedByUser)
+                    .Include(x => x.Category)
+                    .AsSplitQuery();
 
                 if (!string.IsNullOrEmpty(request.Search))
                 {
@@ -61,6 +67,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.SubCategorySet
                     Id = x.Id,
                     SubCategory_Description = x.SubCategoryDescription,
                     CategoryId = x.CategoryId,
+                    ChannelId = x.Category.ChannelId,
+                    ChannelName = x.Category.Channel.ChannelName,
                     Category_Description = x.Category.CategoryDescription,
                     Is_Active = x.IsActive,
                     Added_By = x.AddedByUser.Fullname,

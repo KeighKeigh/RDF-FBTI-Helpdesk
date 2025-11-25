@@ -13,6 +13,7 @@
             public DateTime? New_Target_Date { get; set; }
             public DateTime? Previous_Target_Date { get; set; }
             public DateTime? Approved_At { get; set; }
+            public DateTime? TransferredDate { get; set; }
             public string Transfer_Remarks { get; set; }
             public string Remarks { get; set; }
             public string Modified_By { get; set; }

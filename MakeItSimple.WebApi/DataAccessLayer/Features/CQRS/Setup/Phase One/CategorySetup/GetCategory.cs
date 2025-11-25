@@ -41,6 +41,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.CategorySetup
         {
             public string Search { get; set; }
             public bool? Status { get; set; }
+           
         }
 
         public class Handler : IRequestHandler<GetCategoryQuery, PagedList<GetCategoryResult>>
@@ -62,7 +63,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.CategorySetup
 
                 if (!string.IsNullOrEmpty(request.Search))
                 {
-                    categoriesQuery = categoriesQuery.Where(x => x.CategoryDescription.Contains(request.Search));
+                    categoriesQuery = categoriesQuery.Where(x => x.CategoryDescription.Contains(request.Search)
+                    || x.Channel.ChannelName.ToLower().Contains(request.Search));
                 }
 
                 if (request.Status != null)

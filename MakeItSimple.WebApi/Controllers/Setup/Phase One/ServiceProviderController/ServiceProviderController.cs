@@ -13,6 +13,7 @@ using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.ChannelSetu
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.ServiceProviderSetup.GetServiceProviderValidation;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.ServiceProviderSetup.UpdateServiceProviderStatus;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.ServiceProviderSetup.GetServiceProvider;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.ServiceProviderSetup.GetServiceProviders;
 
 namespace MakeItSimple.WebApi.Controllers.Setup.Phase_One.ServiceProviderController
 {
@@ -32,6 +33,46 @@ namespace MakeItSimple.WebApi.Controllers.Setup.Phase_One.ServiceProviderControl
 
         [HttpGet("page")]
         public async Task<IActionResult> GetServiceProvider([FromQuery] GetServiceProviderQuery query)
+        {
+            try
+            {
+                var serviceProvider = await _mediator.Send(query);
+
+                Response.AddPaginationHeader(
+
+                serviceProvider.CurrentPage,
+                serviceProvider.PageSize,
+                serviceProvider.TotalCount,
+                serviceProvider.TotalPages,
+                serviceProvider.HasPreviousPage,
+                serviceProvider.HasNextPage
+
+                );
+
+                var result = new
+                {
+                    serviceProvider,
+                    serviceProvider.CurrentPage,
+                    serviceProvider.PageSize,
+                    serviceProvider.TotalCount,
+                    serviceProvider.TotalPages,
+                    serviceProvider.HasPreviousPage,
+                    serviceProvider.HasNextPage
+                };
+
+                var successResult = Result.Success(result);
+                return Ok(successResult);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpGet("pages")]
+        public async Task<IActionResult> GetServiceProviders([FromQuery] GetServiceProvidersQuery query)
         {
             try
             {

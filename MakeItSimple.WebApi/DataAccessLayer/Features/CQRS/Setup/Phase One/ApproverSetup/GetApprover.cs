@@ -49,10 +49,12 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.ApproverSetup
             public async Task<PagedList<GetApproverResult>> Handle(GetApproverQuery request, CancellationToken cancellationToken)
             {
                 IQueryable<Approver> approverQuery = _context.Approvers
+                    .AsNoTrackingWithIdentityResolution()
                     .Include(x => x.User)
                     .Include(x => x.SubUnit)
                     .Include(x => x.AddedByUser)
-                    .Include(x => x.ModifiedByUser);
+                    .Include(x => x.ModifiedByUser)
+                    .AsSplitQuery();
 
                 if (!string.IsNullOrEmpty(request.Search))
                 {

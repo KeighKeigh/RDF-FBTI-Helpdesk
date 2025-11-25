@@ -151,6 +151,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.ClosedTicketCon
                         Fullname = x.TicketConcern.User.Fullname,
                         DateNeeded = x.TicketConcern.RequestConcern.DateNeeded,
                         ConcernCategory = x.CategoryConcernName,
+                        Contractor = x.Contractor,
                         GetClosingTicketTechnicians = x.ticketTechnicians
                         .Select(t => new GetClosingTicketResults.GetClosingTicketTechnician
                         {

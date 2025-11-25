@@ -27,6 +27,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OnHoldReport
                     .Include(q => q.TicketConcern)
                     .ThenInclude(q => q.RequestConcern)
                     .Include(q => q.AddedByUser)
+                    .Where(x => x.IsHold == true && x.ResumeAt == null)
                     .AsSplitQuery();
 
                 if (request.ServiceProvider is not null)

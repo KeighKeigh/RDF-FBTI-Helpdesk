@@ -34,7 +34,8 @@
             public string Target_Date { get; set; }
             public string Ticket_Status { get; set; }
             public string Remarks { get; set; }
-            public int? Aging_Days {  get; set; }     
+            public int? Aging_Days {  get; set; }    
+            public int? Rating { get; set; }
             public int? ChannelId { get; set; }
             public int? ServiceProvider { get; set; }
             public string ServiceProviderName { get; set; }
@@ -52,7 +53,7 @@
             public string Severity { get; set; }
             public string Technicians { get; set; }
             public string CategoryConcern { get; set; }
-
+            public string Contractor { get; set; }
 
 
 

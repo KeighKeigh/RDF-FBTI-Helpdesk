@@ -54,6 +54,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.ClosedTick
                     Notes = command.Notes,
                     CategoryConcernId = command.CategoryConcernId,
                     CategoryConcernName = command.CategoryConcern,
+                    ContractorId = command.ContractorId,
+                    Contractor = command.Contractor,
 
                 };
 
@@ -103,6 +105,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.ClosedTick
                     CategoryConcernId = command.CategoryConcernId,
                     CategoryConcernName = command.CategoryConcern,
                     ForClosingAt = DateTime.Now,
+                    ContractorId = command.ContractorId,
+                    Contractor = command.Contractor,
                 };
 
                 await unitOfWork.ClosingTicket.CreateClosingTicket(addNewClosingConcern,cancellationToken);
@@ -145,13 +149,6 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.ClosedTick
 
                 await unitOfWork.RequestTicket.CreateTicketHistory(addTicketHistory, cancellationToken);
 
-                //foreach (var approver in approverList)
-                //{
-                    //var approverLevel = approver.ApproverLevel == 1 ? $"{approver.ApproverLevel}st"
-                    //       : approver.ApproverLevel == 2 ? $"{approver.ApproverLevel}nd"
-                    //       : approver.ApproverLevel == 3 ? $"{approver.ApproverLevel}rd"
-                    //       : $"{approver.ApproverLevel}th";
-
                     var addApproverHistory = new TicketHistory
                     {
                         TicketConcernId = ticketConcernExist.Id,
@@ -161,21 +158,13 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.ClosedTick
                         Status = $"{TicketingConString.CloseForApproval}",
                     };
 
-                    await unitOfWork.RequestTicket.CreateTicketHistory(addApproverHistory, cancellationToken);
-
-                //}
-
-                //var businessUnitList = await unitOfWork.BusinessUnit
-                //         .BusinessUnitExist(ticketConcernExist.User.BusinessUnitId);
-
-                //var receiverList = await unitOfWork.Receiver
-                //    .ReceiverExistByBusinessUnitId(businessUnitList.Id);
+                await unitOfWork.RequestTicket.CreateTicketHistory(addApproverHistory, cancellationToken);
 
                 var addForConfirmationHistory = new TicketHistory
                 {
                     TicketConcernId = ticketConcernExist.Id,
                     TransactedBy = closingTicketExist.TicketConcern.RequestorBy,
-                    TransactionDate = DateTime.Now,
+                    //TransactionDate = DateTime.Now,
                     Request = TicketingConString.NotConfirm,
                     Status = $"{TicketingConString.CloseForConfirmation} {ticketConcernExist.RequestorByUser.Fullname}",
                 };
@@ -201,34 +190,34 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.ClosedTick
 
             }
 
-            if (command.AddClosingTicketTechnicians.Any() && command.AddClosingTicketTechnicians.First().Technician_By is not null)
-            {
+            //if (command.AddClosingTicketTechnicians.Any() && command.AddClosingTicketTechnicians.First().Technician_By is not null)
+            //{
 
-                foreach (var technician in command.AddClosingTicketTechnicians)
-                {
-                    var ticketTechnicianExist = await unitOfWork.ClosingTicket
-                        .TicketTechnicianExist(technician.TicketTechnicianId);
+            //    foreach (var technician in command.AddClosingTicketTechnicians)
+            //    {
+            //        var ticketTechnicianExist = await unitOfWork.ClosingTicket
+            //            .TicketTechnicianExist(technician.TicketTechnicianId);
 
-                    if (ticketTechnicianExist is not null)
-                    {
-                        ticketTechnicianList.Add(ticketTechnicianExist.Id);
+            //        if (ticketTechnicianExist is not null)
+            //        {
+            //            ticketTechnicianList.Add(ticketTechnicianExist.Id);
 
-                    }
-                    else if(ticketTechnicianExist is null && technician.Technician_By is not null)
-                    {
-                        var addTicketTechnician = new TicketTechnician
-                        {
-                            ClosingTicketId = closingTicketExist.Id,
-                            TechnicianBy = technician.Technician_By,
+            //        }
+            //        else if(ticketTechnicianExist is null && technician.Technician_By is not null)
+            //        {
+            //            var addTicketTechnician = new TicketTechnician
+            //            {
+            //                ClosingTicketId = closingTicketExist.Id,
+            //                TechnicianBy = technician.Technician_By,
 
-                        };
+            //            };
 
-                        await unitOfWork.ClosingTicket.CreateTicketTechnician(addTicketTechnician, cancellationToken);
+            //            await unitOfWork.ClosingTicket.CreateTicketTechnician(addTicketTechnician, cancellationToken);
 
-                    }
-                }
+            //        }
+            //    }
 
-            }
+            //}
 
             //foreach (var category in command.ClosingTicketCategories)
             //{

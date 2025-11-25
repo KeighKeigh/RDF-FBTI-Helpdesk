@@ -55,18 +55,17 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
             public string Ticket_Status { get; set; }
             public string Remarks { get; set; }
             public int? Aging_Days { get; set; }
+            public int? Rating { get; set; }
             public int? ChannelId { get; set; }
+            public string Contractor { get; set; }
             public int? ServiceProvider { get; set; }
             public string ServiceProviderName { get; set; }
             public string StartDate { get; set; }
             public string ForClosingDate { get; set; }
             public string ClosedDate { get; set; }
-            public string ForClosedAt { get; set; }
+            //public string ForClosedAt { get; set; }
             public string AssignTo { get; set; }
             public string ClosingStatus { get; set; }
-            public string Technician1 { get; set; }
-            public string Technician2 { get; set; }
-            public string Technician3 { get; set; }
             public string Resolution { get; set; }
             public string CreatedTime { get; set; }
             public string CompletedTime { get; set; }
@@ -127,14 +126,14 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
                           .Select(x => x.Category.CategoryDescription)),
                         TicketSubCategoryDescriptions = string.Join(", ", o.RequestConcern.TicketSubCategories
                            .Select(x => x.SubCategory.SubCategoryDescription)),
-                        Date_Needed = o.RequestConcern.DateNeeded.Value.ToString("MM/dd/yyyy HH:mm"),
+                        Date_Needed = o.RequestConcern.DateNeeded.Value.ToString("MM/dd/yyyy"),
                         Contact_Number = o.RequestConcern.ContactNumber,
                         Notes = o.RequestConcern.Notes,
                         Transaction_Date = o.CreatedAt.ToString("MM/dd/yyyy HH:mm"),
                         Target_Date = o.TargetDate.Value.Date.ToString("MM/dd/yyyy "),
                         Ticket_Status = "Open",
                         Remarks = o.Remarks,
-                        Aging_Days = EF.Functions.DateDiffDay(o.DateApprovedAt.Value.Date, DateTime.Now.Date),
+                        Aging_Days = EF.Functions.DateDiffDay(o.TargetDate.Value.Date, DateTime.Now.Date) <= 0 ? 0 : EF.Functions.DateDiffDay(o.TargetDate.Value.Date, DateTime.Now.Date),
                         ChannelId = o.RequestConcern.ChannelId.Value,
                         StartDate = o.DateApprovedAt.Value.ToString("MM/dd/yyyy HH:mm"),
                         ServiceProvider = o.RequestConcern.ServiceProviderId.Value,
@@ -183,14 +182,14 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
                           .Select(x => x.Category.CategoryDescription)),
                         TicketSubCategoryDescriptions = string.Join(", ", ct.TicketConcern.RequestConcern.TicketSubCategories
                                .Select(x => x.SubCategory.SubCategoryDescription)),
-                        Date_Needed = ct.TicketConcern.RequestConcern.DateNeeded.Value.ToString("MM/dd/yyyy HH:mm"),
+                        Date_Needed = ct.TicketConcern.RequestConcern.DateNeeded.Value.ToString("MM/dd/yyyy"),
                         Contact_Number = ct.TicketConcern.RequestConcern.ContactNumber,
                         Notes = ct.TicketConcern.RequestConcern.Notes,
                         Transaction_Date = ct.TransferAt.Value.ToString("MM/dd/yyyy HH:mm"),
                         Target_Date = ct.Current_Target_Date.Value.Date.ToString("MM/dd/yyyy"),
                         Ticket_Status = "Transfer",
                         Remarks = ct.TransferRemarks,
-                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.DateApprovedAt.Value.Date, DateTime.Now.Date),
+                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, DateTime.Now.Date) <= 0 ? 0 : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, DateTime.Now.Date),
                         ChannelId = ct.TicketConcern.RequestConcern.ChannelId.Value,
                         StartDate = ct.TicketConcern.DateApprovedAt.Value.ToString("MM/dd/yyyy HH:mm"),
                         ServiceProvider = ct.TicketConcern.RequestConcern.ServiceProviderId.Value,
@@ -236,14 +235,14 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
                           .Select(x => x.Category.CategoryDescription)),
                         TicketSubCategoryDescriptions = string.Join(", ", ct.TicketConcern.RequestConcern.TicketSubCategories
                                .Select(x => x.SubCategory.SubCategoryDescription)),
-                        Date_Needed = ct.TicketConcern.RequestConcern.DateNeeded.Value.ToString("MM/dd/yyyy HH:mm"),
+                        Date_Needed = ct.TicketConcern.RequestConcern.DateNeeded.Value.ToString("MM/dd/yyyy"),
                         Contact_Number = ct.TicketConcern.RequestConcern.ContactNumber,
                         Notes = ct.TicketConcern.RequestConcern.Notes,
                         Transaction_Date = ct.CreatedAt.ToString("MM/dd/yyyy HH:mm"),
                         Target_Date = ct.TicketConcern.TargetDate.Value.Date.ToString("MM/dd/yyyy"),
                         Ticket_Status = "On-Hold",
                         Remarks = ct.OnHoldRemarks,
-                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.DateApprovedAt.Value.Date, DateTime.Now.Date),
+                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, DateTime.Now.Date) <= 0 ? 0 : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, DateTime.Now.Date),
                         ChannelId = ct.TicketConcern.RequestConcern.ChannelId.Value,
                         StartDate = ct.TicketConcern.DateApprovedAt.Value.ToString("MM/dd/yyyy HH:mm"),
                         ServiceProvider = ct.TicketConcern.RequestConcern.ServiceProviderId.Value,
@@ -290,14 +289,17 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
                           .Select(x => x.Category.CategoryDescription)),
                         TicketSubCategoryDescriptions = string.Join(", ", ct.TicketConcern.RequestConcern.TicketSubCategories
                                .Select(x => x.SubCategory.SubCategoryDescription)),
-                        Date_Needed = ct.TicketConcern.RequestConcern.DateNeeded.Value.ToString("MM/dd/yyyy HH:mm"),
+                        Date_Needed = ct.TicketConcern.RequestConcern.DateNeeded.Value.ToString("MM/dd/yyyy"),
                         Contact_Number = ct.TicketConcern.RequestConcern.ContactNumber,
                         Notes = ct.Notes,
                         Transaction_Date = ct.ClosingAt.Value.ToString("MM/dd/yyyy HH:mm"),
                         Target_Date = ct.TicketConcern.TargetDate.Value.Date.ToString("MM/dd/yyyy"),
                         Ticket_Status = "Closed",
                         Remarks = ct.ClosingRemarks,
-                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.DateApprovedAt.Value.Date, ct.ClosingAt.Value.Date),
+                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) <= 0 ? 0 : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date),
+                        Rating = EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date)  >= 31 ? 1
+                        : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) >= 15 ? 2
+                        : 3,
                         ChannelId = ct.TicketConcern.RequestConcern.ChannelId.Value,
                         StartDate = ct.TicketConcern.DateApprovedAt.Value.ToString("MM/dd/yyyy HH:mm"),
                         ForClosingDate = ct.ForClosingAt.Value.ToString("MM/dd/yyyy HH:mm"),
@@ -306,15 +308,16 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
                         AssignTo = ct.TicketConcern.RequestConcern.AssignToUser.Fullname,
                         ServiceProviderName = ct.TicketConcern.RequestConcern.ServiceProvider.ServiceProviderName,
                         ClosingStatus = ct.TicketConcern.TargetDate.Value.Date < ct.TicketConcern.Closed_At.Value.Date ? "Delayed" : "On-Time",
-                        Technician1 = ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(0).Take(1).FirstOrDefault(),
-                        Technician2 = ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(1).Take(1).FirstOrDefault(),
-                        Technician3 = ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(2).Take(1).FirstOrDefault(),
+                        //Technician1 = ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(0).Take(1).FirstOrDefault(),
+                        //Technician2 = ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(1).Take(1).FirstOrDefault(),
+                        //Technician3 = ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(2).Take(1).FirstOrDefault(),
                         Resolution = ct.TicketConcern.RequestConcern.Resolution,
                         CreatedTime = ct.TicketConcern.RequestConcern.CreatedAt.ToString("MM/dd/yyyy HH:mm"),
                         CompletedTime = ct.TicketConcern.Closed_At.Value.ToString("MM/dd/yyyy HH:mm"),
                         Severity = ct.TicketConcern.RequestConcern.Severity,
                         DateStarted = ct.TicketConcern.DateApprovedAt.Value.ToString("MM/dd/yyyy HH:mm"),
                         RequestConcernId = ct.TicketConcern.RequestConcernId,
+                        Contractor = ct.Contractor,
 
                     }).ToListAsync();
 
@@ -376,19 +379,20 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
                         Ticket_Status = r.Ticket_Status,
                         Remarks = r.Remarks,
                         Aging_Days = r.Aging_Days,
+                        Rating = r.Rating,
                         ChannelId = r.ChannelId,
                         StartDate = r.StartDate,
                         ForClosingDate = r.ForClosingDate,
-                      
+                        Contractor = r.Contractor,
                         ClosedDate = r.ClosedDate,
                         AssignTo = r.AssignTo,
                         ServiceProvider = r.ServiceProvider,
                         ServiceProviderName = r.ServiceProviderName,
                         ClosingStatus = r.ClosingStatus,
                         Personnel_Id = r.Personnel_Id,
-                        Technician1 = r.Technician1,
-                        Technician2 = r.Technician2,
-                        Technician3 = r.Technician3,
+                        //Technician1 = r.Technician1,
+                        //Technician2 = r.Technician2,
+                        //Technician3 = r.Technician3,
                         Resolution = r.Resolution,
                         CreatedTime = r.CreatedTime,
                         CompletedTime = r.CompletedTime,
@@ -440,9 +444,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
                     var worksheet = workbook.Worksheets.Add($"All Ticket Report");
                     var headers = new List<string>
                     {
-                        "Technician",
-                        "Technician 2",
-                        "Technician 3",
+                        "Contractor",
                         "Category",
                         "Subcategory",
                         "Item",
@@ -467,6 +469,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
                         "Completed Time",
                         "Time Elapsed",
                         "Priority",
+                        "Aging Days",//
+                        "Rating",//
                         "Date Created / Received",
                         "Date Needed",
                         "Date Started",
@@ -497,33 +501,33 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.AllTicketExpo
                     {
                         var row = worksheet.Row(index + 1);
 
-                        row.Cell(1).Value = results[index - 1].Technician1;
-                        row.Cell(2).Value = results[index - 1].Technician2;
-                        row.Cell(3).Value = results[index - 1].Technician3;
-                        row.Cell(4).Value = results[index - 1].TicketCategoryDescriptions;
-                        row.Cell(5).Value = results[index - 1].TicketSubCategoryDescriptions;
-                        //row.Cell(6).Value = results[index - 1].Item;
-                        //row.Cell(7).Value = results[index - 1].Subject;
-                        row.Cell(8).Value = results[index - 1].Concerns;
-                        //row.Cell(9).Value = results[index - 1].AssetTag;
-                        row.Cell(10).Value = results[index - 1].ServiceProviderName;
-                        //row.Cell(11).Value = results[index - 1]."MIR";
-                        //row.Cell(12).Value = results[index - 1].materialCost;
-                        row.Cell(13).Value = results[index - 1].Resolution;
-                        //row.Cell(14).Value = results[index - 1].RequestMode;
-                        row.Cell(15).Value = results[index - 1].Request_Type;
-                        row.Cell(16).Value = results[index - 1].Ticket_Status;
-                        //row.Cell(17).Value = results[index - 1].FirstResponse;
-                        //row.Cell(18).Value = results[index - 1].OverdueStatus;
-                        //row.Cell(19).Value = results[index - 1].WorkSite;
-                        row.Cell(20).Value = results[index - 1].Requestor_Name;
-                        row.Cell(21).Value = $"{results[index - 1].Company_Code} - {results[index - 1].Company_Name}";
-                        row.Cell(22).Value = $"{results[index - 1].Department_Code} - {results[index - 1].Department_Name}";
-                        row.Cell(23).Value = $"{results[index - 1].Location_Code} - {results[index - 1].Location_Name}";
-                        row.Cell(24).Value = results[index - 1].CreatedTime;
-                        row.Cell(25).Value = results[index - 1].CompletedTime;
-                        //row.Cell(26).Value = results[index - 1].TimeElapsed;
-                        row.Cell(27).Value = results[index - 1].Severity;
+                        row.Cell(1).Value = results[index - 1].Contractor;
+                        row.Cell(2).Value = results[index - 1].TicketCategoryDescriptions;
+                        row.Cell(3).Value = results[index - 1].TicketSubCategoryDescriptions;
+                        //row.Cell(4).Value = results[index - 1].Item;
+                        //row.Cell(5).Value = results[index - 1].Subject;
+                        row.Cell(6).Value = results[index - 1].Concerns;
+                        //row.Cell(7).Value = results[index - 1].AssetTag;
+                        row.Cell(8).Value = results[index - 1].ServiceProviderName;
+                        //row.Cell(9).Value = results[index - 1]."MIR";
+                        //row.Cell(10).Value = results[index - 1].materialCost;
+                        row.Cell(11).Value = results[index - 1].Resolution;
+                        //row.Cell(12).Value = results[index - 1].RequestMode;
+                        row.Cell(13).Value = results[index - 1].Request_Type;
+                        row.Cell(14).Value = results[index - 1].Ticket_Status;
+                        //row.Cell(15).Value = results[index - 1].FirstResponse;
+                        //row.Cell(16).Value = results[index - 1].OverdueStatus;
+                        //row.Cell(17).Value = results[index - 1].WorkSite;
+                        row.Cell(18).Value = results[index - 1].Requestor_Name;
+                        row.Cell(19).Value = $"{results[index - 1].Company_Code} - {results[index - 1].Company_Name}";
+                        row.Cell(20).Value = $"{results[index - 1].Department_Code} - {results[index - 1].Department_Name}";
+                        row.Cell(21).Value = $"{results[index - 1].Location_Code} - {results[index - 1].Location_Name}";
+                        row.Cell(22).Value = results[index - 1].CreatedTime;
+                        row.Cell(23).Value = results[index - 1].CompletedTime;
+                        //row.Cell(24).Value = results[index - 1].TimeElapsed;
+                        row.Cell(25).Value = results[index - 1].Severity;
+                        row.Cell(26).Value = results[index - 1].Aging_Days;
+                        row.Cell(27).Value = results[index - 1].Rating;
                         row.Cell(28).Value = results[index - 1].CreatedTime;
                         row.Cell(29).Value = results[index - 1].Date_Needed;
 

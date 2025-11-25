@@ -4,6 +4,7 @@ using MakeItSimple.WebApi.DataAccessLayer.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MakeItSimple.WebApi.Migrations
 {
     [DbContext(typeof(MisDbContext))]
-    partial class MisDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251118022451_ContractorAndContractorChannelPivot")]
+    partial class ContractorAndContractorChannelPivot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2611,14 +2614,6 @@ namespace MakeItSimple.WebApi.Migrations
                     b.Property<string>("ClosingRemarks")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("closing_remarks");
-
-                    b.Property<string>("Contractor")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("contractor");
-
-                    b.Property<int?>("ContractorId")
-                        .HasColumnType("int")
-                        .HasColumnName("contractor_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")

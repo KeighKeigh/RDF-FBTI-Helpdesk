@@ -39,7 +39,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Reposi
         Task ApproveOpenTicket(TicketConcern ticketConcern, CancellationToken cancellationToken);
        
 
-
+        Task<bool> UpdateAttachmentForCherryPicking(ApproverDate appproverDate , CancellationToken cancellationToken); 
         Task RemoveTicketCategory(int id, List<int?> categoryId, CancellationToken cancellationToken);
         Task RemoveTicketSubCategory(int id, List<int?> subCategoryId, CancellationToken cancellationToken);
         Task RemoveTicketHistory(int? id);

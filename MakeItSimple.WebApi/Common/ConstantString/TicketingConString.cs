@@ -127,8 +127,11 @@ namespace MakeItSimple.WebApi.Common.ConstantString
 
         // Attachment
 
-        public const string AttachmentPath = @"C:\inetpub\vhosts\rdfmis.com\httpdocs\MIS_Assets\Tickets";
-        public const string AttachmentProfilePath = @"C:\inetpub\vhosts\rdfmis.com\httpdocs\MIS_Assets\Profile";
+        //public const string AttachmentPath = @"C:\inetpub\vhosts\rdfmis.com\httpdocs\MIS_Assets\Tickets";
+        //public const string AttachmentProfilePath = @"C:\inetpub\vhosts\rdfmis.com\httpdocs\MIS_Assets\Profile";
+
+        public const string AttachmentPath = @"C:\inetpub\vhosts\rdfmis.com\httpdocs\FBTI_Assets\Tickets";
+        public const string AttachmentProfilePath = @"C:\inetpub\vhosts\rdfmis.com\httpdocs\FBTI_Assets\Profile";
 
 
     }

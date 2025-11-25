@@ -44,7 +44,8 @@ namespace MakeItSimple.WebApi.Models.Ticketing
 
         public int? CategoryConcernId { get; set; }
         public string CategoryConcernName { get; set; }
-
+        public int? ContractorId { get; set; }
+        public string Contractor {  get; set; }
         public int? CategoryId { get; set; }
         public virtual Category Category { get; set; }
 

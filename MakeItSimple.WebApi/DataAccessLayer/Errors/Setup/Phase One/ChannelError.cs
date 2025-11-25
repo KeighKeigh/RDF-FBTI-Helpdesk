@@ -66,5 +66,11 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Errors.Setup
 
         public static Error ServiceProviderNoChanges() =>
         new Error("ServiceProvider.ChannelNoChanges", "No changes has made!");
+
+        public static Error CategoryConcernAlreadyExists() =>
+        new Error("ServiceProvider.CategoryConcernAlreadyExists", "Category Concern Already Exists!");
+
+        public static Error ContractorAlreadyExists() =>
+        new Error("ServiceProvider.ContractorAlreadyExists", "Contractor Already Exists!");
     }
 }

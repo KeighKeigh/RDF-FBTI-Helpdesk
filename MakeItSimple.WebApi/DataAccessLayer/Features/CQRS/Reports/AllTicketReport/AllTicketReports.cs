@@ -67,7 +67,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         Target_Date = o.TargetDate.Value.ToString("MM/dd/yyyy"),
                         Ticket_Status = "Open",
                         Remarks = o.Remarks,
-                        Aging_Days = EF.Functions.DateDiffDay(o.DateApprovedAt.Value.Date, DateTime.Now.Date),
+                        Aging_Days = EF.Functions.DateDiffDay(o.TargetDate.Value.Date, DateTime.Now.Date) <= 0 ? 0 : EF.Functions.DateDiffDay(o.TargetDate.Value.Date, DateTime.Now.Date),
                         ChannelId = o.RequestConcern.ChannelId.Value,
                         StartDate = o.DateApprovedAt.Value.ToString("MM/dd/yyyy hh:tt:mm"),
                         ServiceProvider = o.RequestConcern.ServiceProviderId.Value,
@@ -121,7 +121,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         Target_Date = ct.Current_Target_Date.Value.ToString("MM/dd/yyyy"),
                         Ticket_Status = "Transfer",
                         Remarks = ct.TransferRemarks,
-                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.DateApprovedAt.Value.Date, DateTime.Now.Date),
+                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, DateTime.Now.Date) <= 0 ? 0 : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, DateTime.Now.Date),
                         ChannelId = ct.TicketConcern.RequestConcern.ChannelId.Value,
                         StartDate = ct.TicketConcern.DateApprovedAt.Value.ToString("MM/dd/yyyy hh:tt:mm"),
                         ServiceProvider = ct.TicketConcern.RequestConcern.ServiceProviderId.Value,
@@ -170,7 +170,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         Target_Date = ct.TicketConcern.TargetDate.Value.ToString("MM/dd/yyyy"),
                         Ticket_Status = "On-Hold",
                         Remarks = ct.OnHoldRemarks,
-                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.DateApprovedAt.Value.Date, DateTime.Now.Date),
+                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, DateTime.Now.Date) <= 0 ? 0 : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, DateTime.Now.Date),
                         ChannelId = ct.TicketConcern.RequestConcern.ChannelId.Value,
                         StartDate = ct.TicketConcern.DateApprovedAt.Value.ToString("MM/dd/yyyy hh:tt:mm"),
                         ServiceProvider = ct.TicketConcern.RequestConcern.ServiceProviderId.Value,
@@ -220,7 +220,10 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         Target_Date = ct.TicketConcern.TargetDate.Value.ToString("MM/dd/yyyy"),
                         Ticket_Status = "Closed",
                         Remarks = ct.ClosingRemarks,
-                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.DateApprovedAt.Value.Date, ct.ClosingAt.Value.Date),
+                        Aging_Days = EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) <= 0 ? 0 : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date),
+                        Rating = EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) >= 31 ? 1 
+                        : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) >= 15 ? 2
+                        : 3,
                         ChannelId = ct.TicketConcern.RequestConcern.ChannelId.Value,
                         StartDate = ct.TicketConcern.DateApprovedAt.Value.ToString("MM/dd/yyyy hh:tt:mm"),
                         ClosedDate = ct.TicketConcern.Closed_At.Value.ToString("MM/dd/yyyy hh:tt:mm"),
@@ -231,8 +234,9 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         ClosingStatus = ct.TicketConcern.TargetDate.Value.Date >= ct.TicketConcern.Closed_At.Value.Date ? "On-Time"
                         : "Delayed",
                         Resolution = ct.TicketConcern.RequestConcern.Resolution,
-                        Technicians = string.Join(", ", ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname)),
+                        //Technicians = string.Join(", ", ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname)),
                         CategoryConcern = ct.TicketConcern.RequestConcern.CategoryConcernName,
+                        Contractor = ct.Contractor
 
                     }).ToListAsync(); 
 
@@ -470,6 +474,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         Ticket_Status = r.Ticket_Status,
                         Remarks = r.Remarks,
                         Aging_Days = r.Aging_Days,
+                        Rating = r.Rating,
                         ChannelId = r.ChannelId,
                         StartDate = r.StartDate,
                         ClosedDate = r.ClosedDate,
@@ -478,9 +483,10 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         ServiceProviderName = r.ServiceProviderName,
                         ClosingStatus = r.ClosingStatus,
                         Resolution = r.Resolution,
-                        Technicians = r.Technicians,
+                        //Technicians = r.Technicians,
                         CategoryConcern = r.CategoryConcern,
                         ForClosedDate = r.ForClosedDate,
+                        Contractor = r.Contractor
                        
 
                     }).ToList();

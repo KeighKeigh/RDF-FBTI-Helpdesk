@@ -4,6 +4,7 @@ using MakeItSimple.WebApi.DataAccessLayer.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MakeItSimple.WebApi.Migrations
 {
     [DbContext(typeof(MisDbContext))]
-    partial class MisDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251118010127_categoryConcernChannelPivot")]
+    partial class categoryConcernChannelPivot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1589,70 +1592,6 @@ namespace MakeItSimple.WebApi.Migrations
                     b.ToTable("category_concern_channels", (string)null);
                 });
 
-            modelBuilder.Entity("MakeItSimple.WebApi.Models.Setup.Phase_One.ContractorSetup.Contractor", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ContractorName")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("contractor_name");
-
-                    b.Property<DateTime?>("DateAdded")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("date_added");
-
-                    b.Property<DateTime?>("DateUpdated")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("date_updated");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_active");
-
-                    b.HasKey("Id")
-                        .HasName("pk_contractors");
-
-                    b.ToTable("contractors", (string)null);
-                });
-
-            modelBuilder.Entity("MakeItSimple.WebApi.Models.Setup.Phase_One.ContractorSetup.ContractorChannel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ChannelId")
-                        .HasColumnType("int")
-                        .HasColumnName("channel_id");
-
-                    b.Property<int>("ContractorId")
-                        .HasColumnType("int")
-                        .HasColumnName("contractor_id");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_active");
-
-                    b.HasKey("Id")
-                        .HasName("pk_contractor_channels");
-
-                    b.HasIndex("ChannelId")
-                        .HasDatabaseName("ix_contractor_channels_channel_id");
-
-                    b.HasIndex("ContractorId")
-                        .HasDatabaseName("ix_contractor_channels_contractor_id");
-
-                    b.ToTable("contractor_channels", (string)null);
-                });
-
             modelBuilder.Entity("MakeItSimple.WebApi.Models.Setup.Phase_One.ServiceProviderSetup.ServiceProviderChannel", b =>
                 {
                     b.Property<int>("Id")
@@ -2611,14 +2550,6 @@ namespace MakeItSimple.WebApi.Migrations
                     b.Property<string>("ClosingRemarks")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("closing_remarks");
-
-                    b.Property<string>("Contractor")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("contractor");
-
-                    b.Property<int?>("ContractorId")
-                        .HasColumnType("int")
-                        .HasColumnName("contractor_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2")
@@ -4415,25 +4346,6 @@ namespace MakeItSimple.WebApi.Migrations
                     b.Navigation("Channel");
                 });
 
-            modelBuilder.Entity("MakeItSimple.WebApi.Models.Setup.Phase_One.ContractorSetup.ContractorChannel", b =>
-                {
-                    b.HasOne("MakeItSimple.WebApi.Models.Setup.ChannelSetup.Channel", "Channel")
-                        .WithMany()
-                        .HasForeignKey("ChannelId")
-                        .HasConstraintName("fk_contractor_channels_channels_channel_id");
-
-                    b.HasOne("MakeItSimple.WebApi.Models.Setup.Phase_One.ContractorSetup.Contractor", "Contractor")
-                        .WithMany("ContractorChannels")
-                        .HasForeignKey("ContractorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_contractor_channels_contractors_contractor_id");
-
-                    b.Navigation("Channel");
-
-                    b.Navigation("Contractor");
-                });
-
             modelBuilder.Entity("MakeItSimple.WebApi.Models.Setup.Phase_One.ServiceProviderSetup.ServiceProviderChannel", b =>
                 {
                     b.HasOne("MakeItSimple.WebApi.Models.Setup.ChannelSetup.Channel", "Channel")
@@ -5497,11 +5409,6 @@ namespace MakeItSimple.WebApi.Migrations
             modelBuilder.Entity("MakeItSimple.WebApi.Models.Setup.Phase_One.CategoryConcernSetup.CategoryConcern", b =>
                 {
                     b.Navigation("CategoryConcernChannels");
-                });
-
-            modelBuilder.Entity("MakeItSimple.WebApi.Models.Setup.Phase_One.ContractorSetup.Contractor", b =>
-                {
-                    b.Navigation("ContractorChannels");
                 });
 
             modelBuilder.Entity("MakeItSimple.WebApi.Models.Setup.Phase_One.ServiceProviderSetup.ServiceProviders", b =>

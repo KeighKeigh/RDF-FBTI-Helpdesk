@@ -41,6 +41,7 @@ using MakeItSimple.WebApi.Models.Setup.FormsQuestionSetup;
 using MakeItSimple.WebApi.Models.Setup.LocationSetup;
 using MakeItSimple.WebApi.Models.Setup.Phase_One.ApproverUsersSetup;
 using MakeItSimple.WebApi.Models.Setup.Phase_One.CategoryConcernSetup;
+using MakeItSimple.WebApi.Models.Setup.Phase_One.ContractorSetup;
 using MakeItSimple.WebApi.Models.Setup.Phase_One.ServiceProviderSetup;
 using MakeItSimple.WebApi.Models.Setup.Phase_Two;
 using MakeItSimple.WebApi.Models.Setup.Phase_Two.Pms_Form_Setup;
@@ -91,7 +92,9 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Data.DataContext
         public virtual DbSet<OneUnit> OneUnits { get; set; }
         public virtual DbSet<ApproverUser> ApproverUsers { get; set; }
         public virtual DbSet<CategoryConcern> CategoryConcerns { get; set; }
-
+        public virtual DbSet<CategoryConcernChannel> CategoryConcernChannels { get; set; }
+        public virtual DbSet<Contractor> Contractors { get; set; }
+        public virtual DbSet<ContractorChannel> ContractorChannels { get; set; }
 
 
 

@@ -9,5 +9,6 @@
         public DateTime? DateUpdated { get; set; }
         public bool? IsActive { get; set; }
 
+        public ICollection<CategoryConcernChannel> CategoryConcernChannels { get; set; }
     }
 }

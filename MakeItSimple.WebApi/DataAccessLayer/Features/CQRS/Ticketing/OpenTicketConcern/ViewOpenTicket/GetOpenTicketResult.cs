@@ -116,6 +116,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OpenTicketConce
                 public string Resolution { get; set; }
                 public int? CategoryConcernId { get; set; }
                 public string CategoryConcernName { get; set; }
+                public int? ContractorId { get; set; }
+                public string Contractor { get; set; }
                 public string Notes { get; set; }
                 public string Closed_Status { get; set; }
                 public IEnumerable<ForClosingTicketTechnician> ForClosingTicketTechnicians { get; set; }

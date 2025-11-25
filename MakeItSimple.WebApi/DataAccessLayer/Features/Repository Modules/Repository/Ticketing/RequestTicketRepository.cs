@@ -527,6 +527,22 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Reposi
             return await context.TicketSubCategories.FirstOrDefaultAsync(x => x.SubCategoryId == id && x.RequestConcernId == requestConcern);
         }
 
+        public async Task<bool> UpdateAttachmentForCherryPicking(ApproverDate approverDate, CancellationToken cancellationToken)
+        {
+            var ticket = await context.TicketAttachments.Where(x => x.TicketConcernId == approverDate.TicketConcernId).ToListAsync();
+
+            if (!ticket.Any())
+            {
+                return false;
+            }
+            foreach (var attachment in ticket)
+            {
+                attachment.ApproverDateId = approverDate.Id;
+            }
+            return true;
+
+        }
+
         public async Task RemoveTicketCategory(int id, List<int?> categoryId,CancellationToken cancellationToken)
         {
             await context.TicketCategories

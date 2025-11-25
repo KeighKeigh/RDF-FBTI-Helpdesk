@@ -3,15 +3,13 @@ using MakeItSimple.WebApi.DataAccessLayer.Data.DataContext;
 using MakeItSimple.WebApi.Models.Setup.Phase_One.ServiceProviderSetup;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.ChannelSetup.GetChannel;
-using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.ChannelSetup.GetChannel.GetChannelResult;
 
 namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.ServiceProviderSetup
 {
-    public class GetServiceProvider
+    public class GetServiceProviders
     {
-        public record GetServiceProviderResult
+
+        public record GetServiceProvidersResult
         {
             public int Id { get; set; }
             public string serviceProviderName { get; set; }
@@ -23,33 +21,33 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.Serv
             public string Modified_By { get; set; }
             public DateTime? Updated_At { get; set; }
 
-            public List<ServiceProviderChannel> serviceChannel { get; set; }
+            public List<ServiceProvidersChannel> serviceChannel { get; set; }
 
-            public record ServiceProviderChannel
+            public record ServiceProvidersChannel
             {
                 public int? serviceChannelId { get; set; }
                 public int? serviceProviderId { get; set; }
                 public int? ChannelId { get; set; }
                 public string ChannelName { get; set; }
                 public bool? Is_Active { get; set; }
-                
 
 
-                
+
+
 
             }
 
 
         }
 
-        public class GetServiceProviderQuery : UserParams, IRequest<PagedList<GetServiceProviderResult>>
+        public class GetServiceProvidersQuery : UserParams, IRequest<PagedList<GetServiceProvidersResult>>
         {
             public string Search { get; set; }
             public bool? Status { get; set; }
-            public bool? Request {  get; set; }
+            public bool? Request { get; set; }
         }
 
-        public class Handler : IRequestHandler<GetServiceProviderQuery, PagedList<GetServiceProviderResult>>
+        public class Handler : IRequestHandler<GetServiceProvidersQuery, PagedList<GetServiceProvidersResult>>
         {
             private readonly MisDbContext _context;
 
@@ -58,7 +56,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.Serv
                 _context = context;
             }
 
-            public async Task<PagedList<GetServiceProviderResult>> Handle(GetServiceProviderQuery request, CancellationToken cancellationToken)
+            public async Task<PagedList<GetServiceProvidersResult>> Handle(GetServiceProvidersQuery request, CancellationToken cancellationToken)
             {
 
                 IQueryable<ServiceProviders> serviceQuery = _context.ServiceProviders
@@ -66,7 +64,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.Serv
                     .Include(x => x.ModifiedByUser)
                     .Include(x => x.ServiceProviderChannels)
                     .ThenInclude(x => x.Channel)
-                    .ThenInclude(x => x.ChannelUsers);
+                    .ThenInclude(x => x.ChannelUsers)
+                    ;
 
                 //.Include(x => x.ServiceProviderChannels).ThenInclude(x => x.Id)
 
@@ -87,7 +86,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.Serv
 
 
 
-                var results = serviceQuery.Select(x => new GetServiceProviderResult
+                var results = serviceQuery.Select(x => new GetServiceProvidersResult
                 {
                     Id = x.Id,
                     serviceProviderName = x.ServiceProviderName,
@@ -97,23 +96,23 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Setup.Phase_One.Serv
                     Modified_By = x.ModifiedByUser.Fullname,
                     noOfChannels = x.ServiceProviderChannels.Count(),
                     isActive = x.IsActive,
-                    serviceChannel = x.ServiceProviderChannels.Where(x => x.IsActive == true && x.Channel.Request == request.Request).Select(x => new GetServiceProviderResult.ServiceProviderChannel
+                    serviceChannel = x.ServiceProviderChannels.Where(x => x.IsActive == true).Select(x => new GetServiceProvidersResult.ServiceProvidersChannel
                     {
-                        
+
                         serviceProviderId = x.ServiceProviderId,
                         ChannelId = x.ChannelId,
                         ChannelName = x.Channel.ChannelName,
                         serviceChannelId = x.Id,
                         Is_Active = x.IsActive,
-                        
-                        
+
+
 
 
                     }).ToList()
 
                 });
 
-                return await PagedList<GetServiceProviderResult>.CreateAsync(results, request.PageNumber, request.PageSize);
+                return await PagedList<GetServiceProvidersResult>.CreateAsync(results, request.PageNumber, request.PageSize);
 
             }
         }

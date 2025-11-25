@@ -83,19 +83,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
 
                 var requestConcernsQuery = await _context.RequestConcerns
                     .AsNoTracking()
-                    .Where(x => x.IsActive == true )
-                    .Select(x => new
-                    {
-                        x.Id,
-                        x.User,
-                        x.UserId,
-                        x.ConcernStatus,
-                        x.Is_Confirm,
-                        //x.IsActive,
-                        //x.IsDone,
-                        //x.AssignTo
-
-                    }).ToListAsync();
+                    .Where(x => x.IsActive == true)
+                    .ToListAsync();
 
                 var ticketConcernQuery = await _context.TicketConcerns
                     .AsNoTrackingWithIdentityResolution()
@@ -292,10 +281,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
 
                     if (approverSubUnitIds.Any())
                     {
-                        var openTicketsForApprover = await _context.RequestConcerns
-                            .AsNoTracking()
-                            .Where(x => x.IsActive == true
-                                && x.ConcernStatus == TicketingConString.OnGoing
+                        var openTicketsForApprover =  requestConcernsQuery
+                            .Where(x => x.ConcernStatus == TicketingConString.OnGoing
                                 && approverSubUnitIds.Contains(x.AssignTo))
                             .Select(x => new
                             {
@@ -303,7 +290,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                                 x.ConcernStatus,
                                 x.UserId,
                                 x.TargetDate
-                            }).ToListAsync();
+                            }).ToList();
 
                         openTicketsForApproverNotif = openTicketsForApprover.Count();
 
@@ -423,38 +410,38 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                 }
 
 
-                if (receiverPermissionList.Any(x => x.Contains(request.Role)))
-                {
+                //if (receiverPermissionList.Any(x => x.Contains(request.Role)))
+                //{
 
-                    if (requestConcernsQuery.Any())
-                    {
-                        var listOfRequest = requestConcernsQuery
-                            .Select(x => x.User.BusinessUnitId)
-                            .ToList();
+                //    if (requestConcernsQuery.Any())
+                //    {
+                //        var listOfRequest = requestConcernsQuery
+                //            .Select(x => x.User.BusinessUnitId)
+                //            .ToList();
 
-                        var receiverList = await _context.Receivers
-                            .AsNoTrackingWithIdentityResolution()
-                            .Include(x => x.BusinessUnit)
-                            .AsSplitQuery()
-                            .Where(x => x.IsActive == true)
-                            .Where(x => listOfRequest
-                            .Contains(x.BusinessUnitId.Value))
-                            .Select(x => x.BusinessUnitId)
-                            .ToListAsync();
+                //        var receiverList = await _context.Receivers
+                //            .AsNoTrackingWithIdentityResolution()
+                //            .Include(x => x.BusinessUnit)
+                //            .AsSplitQuery()
+                //            .Where(x => x.IsActive == true)
+                //            .Where(x => listOfRequest
+                //            .Contains(x.BusinessUnitId.Value))
+                //            .Select(x => x.BusinessUnitId)
+                //            .ToListAsync();
 
-                        var receiverConcernsQuery = requestConcernsQuery
-                                .Where(x => receiverList.Contains(x.User.BusinessUnitId))
-                                .Select(x => x.Id)
-                                .ToList();
+                //        var receiverConcernsQuery = requestConcernsQuery
+                //                .Where(x => receiverList.Contains(x.User.BusinessUnitId))
+                //                .Select(x => x.Id)
+                //                .ToList();
 
-                        receiverForApprovalNotif = await _context.TicketConcerns
-                           .AsNoTrackingWithIdentityResolution()
-                           .Where(x => receiverConcernsQuery.Contains(x.RequestConcernId.Value) && x.IsApprove == false)
-                           .CountAsync();
+                //        receiverForApprovalNotif = await _context.TicketConcerns
+                //           .AsNoTrackingWithIdentityResolution()
+                //           .Where(x => receiverConcernsQuery.Contains(x.RequestConcernId.Value) && x.IsApprove == false)
+                //           .CountAsync();
 
-                    }
+                //    }
 
-                }
+                //}
 
                 var notification = new TicketingNotifResult
                 {
@@ -488,7 +475,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                 var ticketConcernList = await _context.TicketConcerns
                     .AsNoTrackingWithIdentityResolution()
                     .Where(x => x.RequestConcern.Is_Confirm == null
-                    && x.RequestConcern.ConcernStatus == TicketingConString.NotConfirm)
+                    && x.RequestConcern.ConcernStatus == TicketingConString.NotConfirm && x.AssignTo == request.UserId)
                     .Select(x => new
                     {
                         x.Id,
@@ -513,10 +500,9 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
 
                     //double totalHours = Math.Abs(daysClose.TotalHours);
 
-
                     //DayOfWeek todayWeek = DateTime.Now.DayOfWeek;
 
-                    DateTime confirmationDeadline;
+                    DateTime? confirmationDeadline;
 
                     if (confirm.Closed_At.Value.DayOfWeek == DayOfWeek.Friday)
                     {
@@ -536,8 +522,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                     //if (totalHours >= 24 && todayWeek != DayOfWeek.Saturday && todayWeek != DayOfWeek.Sunday)
                     if(now >= confirmationDeadline)
                     {
-                        var requestConcern = await _context.RequestConcerns
-                            .AsNoTracking()
+                        var requestConcern =  await _context.RequestConcerns
                             .FirstOrDefaultAsync(x => x.Id == confirm.RequestConcernId);
 
                         requestConcern.Is_Confirm = true;
@@ -545,7 +530,6 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                         requestConcern.ConcernStatus = TicketingConString.Done;
 
                         var ticketHistory = await _context.TicketHistories
-                            .AsNoTracking()
                             .Where(x => x.TicketConcernId == confirm.Id)
                             .Where(x => x.IsApprove == null && x.Request.Contains(TicketingConString.NotConfirm))
                             .FirstOrDefaultAsync();
@@ -563,7 +547,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                         {
 
                             Message = $"Ticket number {confirm.Id} has been closed",
-                            AddedBy = request.UserId,
+                            AddedBy = null,
                             Created_At = DateTime.Now,
                             ReceiveBy = confirm.UserId.Value,
                             Modules = PathConString.IssueHandlerConcerns,

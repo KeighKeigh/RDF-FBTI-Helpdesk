@@ -18,6 +18,7 @@
             public  string ServiceProvider { get; set; }
             public DateTime? DateNeeded { get; set; }
             public string ConcernCategory { get; set; }
+            public string Contractor { get; set; }
 
             public List<GetClosingTicketTechnician> GetClosingTicketTechnicians { get; set; }
             public class GetClosingTicketTechnician

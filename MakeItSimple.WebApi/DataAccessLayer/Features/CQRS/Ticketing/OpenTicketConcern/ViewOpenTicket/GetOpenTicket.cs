@@ -151,7 +151,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OpenTicketConce
                 if (request.Date_From is not null && request.Date_To is not null)
                 {
                     ticketConcernQuery = ticketConcernQuery
-                        .Where(x => x.TargetDate >= request.Date_From.Value && x.TargetDate <= request.Date_To.Value);
+                        .Where(x => x.CreatedAt >= request.Date_From.Value && x.CreatedAt <= request.Date_To.Value);
                 }
 
 
@@ -269,9 +269,9 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.OpenTicketConce
                           Resolution = x.Resolution,
                           CategoryConcernId = x.CategoryConcernId,
                           CategoryConcernName = x.CategoryConcernName,
-
-                          Closed_Status = x.ForClosingAt != null ? x.TicketConcern.TargetDate.Value.Date >= x.ForClosingAt.Value.Date ? TicketingConString.OnTime : TicketingConString.Delay 
-                          : x.TicketConcern.TargetDate.Value.Date >= x.ClosingAt.Value.Date ? TicketingConString.OnTime : TicketingConString.Delay,
+                          ContractorId = x.ContractorId,
+                          Contractor = x.Contractor,
+                          Closed_Status =  x.TicketConcern.TargetDate.Value.Date >= x.ClosingAt.Value.Date ? TicketingConString.OnTime : TicketingConString.Delay,
 
                           ForClosingTicketTechnicians = x.ticketTechnicians.
                           Select(t => new GetOpenTicketResult.GetForClosingTicket.ForClosingTicketTechnician

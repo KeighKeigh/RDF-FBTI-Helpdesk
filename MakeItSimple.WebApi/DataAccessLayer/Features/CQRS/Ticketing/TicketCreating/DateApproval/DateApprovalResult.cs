@@ -1,5 +1,4 @@
-﻿using static MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.ClosedTicketConcern.GetClosing.GetClosingTicket.GetClosingTicketResults;
-
+﻿
 namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.TicketCreating.NewFolder
 {
     public partial class DateApproval

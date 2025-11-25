@@ -30,7 +30,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketingNotifi
                     {
                         Id = x.Id,
                         Message = x.Message,
-                        Added_By = x.AddedByUser.Fullname,
+                        Added_By = x.AddedByUser.Fullname ?? "SYSTEM CONFIRMED",
                         Created_At = x.Created_At,
                         Receive_By = x.ReceiveByUser.Fullname,
                         Is_Checked = x.IsChecked,

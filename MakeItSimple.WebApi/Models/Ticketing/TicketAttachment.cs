@@ -28,7 +28,8 @@ namespace MakeItSimple.WebApi.Models.Ticketing
 
         public int? TicketOnHoldId { get; set; }
         public virtual TicketOnHold TicketOnHold { get; set; }
-
+        public int? ApproverDateId { get; set; }
+        public virtual ApproverDate ApproverDate { get; set; }
         public string Notes { get; set; }
 
 
