@@ -4,6 +4,7 @@ using MakeItSimple.WebApi.DataAccessLayer.Data.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MakeItSimple.WebApi.Migrations
 {
     [DbContext(typeof(MisDbContext))]
-    partial class MisDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251128003531_PendingRequestTable")]
+    partial class PendingRequestTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2822,10 +2825,6 @@ namespace MakeItSimple.WebApi.Migrations
                     b.Property<DateTime?>("DateNeeded")
                         .HasColumnType("datetime2")
                         .HasColumnName("date_needed");
-
-                    b.Property<DateTime?>("DatePicked")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("date_picked");
 
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("int")

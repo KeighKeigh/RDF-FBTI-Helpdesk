@@ -59,7 +59,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Errors.UserManagement.UserAccount
 
         public static Error ProfilePicNull() =>
         new("User.ProfilePicNull", "Profile picture is empty!");
-
+        public static Error ChannelIdNull() =>
+        new("User.ChannelIdNull", "Channel Id is empty!");
 
 
     }

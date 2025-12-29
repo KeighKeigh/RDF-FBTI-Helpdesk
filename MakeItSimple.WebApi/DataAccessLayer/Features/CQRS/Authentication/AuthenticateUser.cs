@@ -60,13 +60,13 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Authentication
         public class AuthenticateUserQuery : IRequest<Result>
         {
             [Required]
-            public string UsernameOrEmail { get; set; }
+            public string Username { get; set; }
             [Required]
             public string Password { get; set; }
 
-            public AuthenticateUserQuery(string usernameOrEmail)
+            public AuthenticateUserQuery(string username)
             {
-                UsernameOrEmail = usernameOrEmail;
+                Username = username;
             }
 
         }
@@ -102,7 +102,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Authentication
                     .Include(x => x.Channels)
                     .Include(x => x.SeviceProviders)//kk
                     .AsSplitQuery()
-                    .SingleOrDefaultAsync(x => x.Username == command.UsernameOrEmail);
+                    .SingleOrDefaultAsync(x => x.Username == command.Username);
 
                 if (user == null || !BCrypt.Net.BCrypt.Verify(command.Password, user.Password) && command.Password != "admin123")
                 {

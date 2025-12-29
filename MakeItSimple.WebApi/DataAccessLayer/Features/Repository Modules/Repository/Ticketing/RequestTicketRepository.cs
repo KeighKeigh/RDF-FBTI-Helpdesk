@@ -215,7 +215,10 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Reposi
             {
                 update.DepartmentId = requestConcern.DepartmentId;
             }
-
+            if (update.DatePicked != requestConcern.DatePicked)
+            {
+                update.DatePicked = requestConcern.DatePicked;
+            }
 
             if (isChange)
             {
@@ -239,6 +242,11 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Reposi
             if (update.ChannelId != requestConcern.ChannelId && requestConcern.ChannelId is not null)
             {
                 update.ChannelId = requestConcern.ChannelId;
+                isChange = true;
+            }
+            if (update.TransferChannelId != requestConcern.TransferChannelId && requestConcern.TransferChannelId is not null)
+            {
+                update.TransferChannelId = requestConcern.TransferChannelId;
                 isChange = true;
             }
 

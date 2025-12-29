@@ -1,9 +1,10 @@
 ﻿using MakeItSimple.WebApi.Common;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MakeItSimple.WebApi.Models;
 using MakeItSimple.WebApi.DataAccessLayer.Data.DataContext;
 using MakeItSimple.WebApi.DataAccessLayer.Errors.UserManagement.UserAccount;
+using MakeItSimple.WebApi.Models;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserAccount
 {
@@ -40,6 +41,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserA
             public string EmpId { get; set; }
             public string Fullname { set; get; }
             public string Username { get; set; }
+            public string Password { get; set; }
             public int UserRoleId { get; set; }
             public int? DepartmentId { get; set; }
             public int? SubUnitId { get; set; }
@@ -153,7 +155,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserA
                     EmpId = command.EmpId,
                     Fullname = command.Fullname,
                     Username = command.Username,
-                    Password = BCrypt.Net.BCrypt.HashPassword(command.Username),
+                    //Password = BCrypt.Net.BCrypt.HashPassword(command.Username),
+                    Password = command.Password.IsNullOrEmpty() ? BCrypt.Net.BCrypt.HashPassword(command.Username) : command.Password,
                     UserRoleId = command.UserRoleId,
                     SubUnitId = command.SubUnitId,
                     ProfilePic = "https://res-console.cloudinary.com/dctfcg76v/thumbnails/v1/image/upload/v1719373008/TWFrZUlUU2ltcGxlL1JERi1GZWF0dXJlZF9zdWJ6dXU=/drilldown",
@@ -172,6 +175,14 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserA
                 };
 
                 await _context.Users.AddAsync(users, cancellationToken);
+
+                var pendinguser = await _context.PendingRequests.FirstOrDefaultAsync(x => (x.IdPrefix + "-" + x.IdNo) == command.EmpId, cancellationToken);
+
+                if (pendinguser != null)
+                {
+                    _context.PendingRequests.Remove(pendinguser);
+                }
+
                 await _context.SaveChangesAsync(cancellationToken);
 
                 var result = new AddNewUserResult

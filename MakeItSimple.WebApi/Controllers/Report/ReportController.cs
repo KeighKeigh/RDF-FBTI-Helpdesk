@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Export.SLAExport.SLAReport;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Reports.BackjobReport.BackJobReportHandler;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Reports.FinanceReports.FinanceReport;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Reports.SADSLAReport.SADSLAReport;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport.AllTicketReports;
@@ -324,6 +325,46 @@ namespace MakeItSimple.WebApi.Controllers.Report
             try
             {
 
+                var reports = await _mediator.Send(query);
+
+                Response.AddPaginationHeader(
+
+                reports.CurrentPage,
+                reports.PageSize,
+                reports.TotalCount,
+                reports.TotalPages,
+                reports.HasPreviousPage,
+                reports.HasNextPage
+
+                );
+
+                var result = new
+                {
+                    reports,
+                    reports.CurrentPage,
+                    reports.PageSize,
+                    reports.TotalCount,
+                    reports.TotalPages,
+                    reports.HasPreviousPage,
+                    reports.HasNextPage
+                };
+
+                var successResult = Result.Success(result);
+
+                return Ok(successResult);
+            }
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
+            }
+
+        }
+
+        [HttpGet("rework")]
+        public async Task<IActionResult> ReworkTicketReports([FromQuery] BackJobReportQuery query)
+        {
+            try
+            {
                 var reports = await _mediator.Send(query);
 
                 Response.AddPaginationHeader(

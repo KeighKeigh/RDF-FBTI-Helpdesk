@@ -35,8 +35,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.TransferExport
                         Concern_Details = x.TicketConcern.RequestConcern.Concern,
                         Transfered_By = x.TransferByUser.Fullname,
                         Transfered_To = x.TransferToUser.Fullname,
-                        New_Target_Date = x.Current_Target_Date.Value.ToString("MM/dd/yyyy"),
-                        Previous_Target_Date = x.TicketConcern.TargetDate.Value.ToString("MM/dd/yyyy"),
+                        New_Target_Date = x.TicketConcern.TargetDate.Value.ToString("MM/dd/yyyy"),
+                        Previous_Target_Date = x.Current_Target_Date.Value.ToString("MM/dd/yyyy"),
                         Transfer_At = x.TransferAt.Value.ToString("MM/dd/yyyy HH:mm"),
                         Transfer_Remarks = x.TransferRemarks,
                         Remarks = x.TransferRemarks,
@@ -45,10 +45,16 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.TransferExport
                         ApprovedBy = x.ApprovedBy,
                         ServiceProviderId = x.TicketConcern.RequestConcern.ServiceProviderId,
                         ServiceProviderName = x.TicketConcern.RequestConcern.ServiceProvider.ServiceProviderName,
-                        ChannnelId = x.TicketConcern.RequestConcern.ChannelId,
-                        ChannnelName = x.TicketConcern.RequestConcern.Channel.ChannelName,
+                        Trasnferred_By_ChannelId = x.TicketConcern.RequestConcern.ChannelId,
+                        Trasnferred_By_Channel = x.TicketConcern.RequestConcern.Channel.ChannelName,
                         Requested_Date = x.TicketConcern.CreatedAt.ToString("MM/dd/yyyy HH:mm"),
-                        TransferredDate = x.CreatedAt.ToString("MM/dd/yyyy HH:mm")
+                        TransferredDate = x.CreatedAt.ToString("MM/dd/yyyy HH:mm"),
+                        Year = x.TicketConcern.TargetDate.Value.Year,
+                        Month = x.TicketConcern.TargetDate.Value.Month,
+                        ChannnelName = x.TicketConcern.RequestConcern.TransferChannel.ChannelName,
+                        ChannnelId = x.TicketConcern.RequestConcern.TransferChannelId,
+                        DatePicked = x.TicketConcern.RequestConcern.DatePicked,
+                        
 
 
 
@@ -61,7 +67,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.TransferExport
 
                     if (request.Channel is not null)
                     {
-                        _transferQuery = _transferQuery.Where(x => x.ChannnelId == request.Channel)
+                        _transferQuery = _transferQuery.Where(x => x.Trasnferred_By_ChannelId == request.Channel)
                             .ToList();
 
                         if (request.UserId is not null)
@@ -110,22 +116,24 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.TransferExport
                     var worksheet = workbook.Worksheets.Add($"Transfer Ticket Report");
                     var headers = new List<string>
                     {
-                        "Transferred By",
-                        "Ticket No.",
-                        "Ticket Description",
-                        "Requested Date",
-                        "Previous Target Date",
-                        "Approved Date",
-                        "New Target Date",
-                        "Transferred Date",
-                        "Transferred To",
-                        "Transferred No.",
-                        "Transfer Remarks",
-                        "Modified By",
-                        "Updated At",
-                        "Approved By",
-                        "Service Provider",
-                        "Channel"
+                        "YEAR",
+                        "MONTH",
+                        "TICKET NUMBER",
+                        "CONCERN DETAILS",
+                        "TRANSFER REMARKS",
+                        "TRANSFERRED BY",
+                        "CHANNEL",
+                        "TRANSFERRED TO",
+                        "CHANNEL",
+                        "DATE REQUESTED",
+                        "DATE PICKED",
+                        "PREVIOUS TARGET DATE",
+                        "APPEOVED DATE",
+                        "TRANSFERRED DATE",
+                        "NEW TARGET DATE",
+                        "APPROVED BY",
+                        "TRANSFERRED NUMBER"
+
 
                     };
 
@@ -144,22 +152,23 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.TransferExport
                     {
                         var row = worksheet.Row(index + 1);
 
-                        row.Cell(1).Value = _transferQuery[index - 1].Transfered_By;
-                        row.Cell(2).Value = _transferQuery[index - 1].TicketConcernId;
-                        row.Cell(3).Value = _transferQuery[index - 1].Concern_Details;
-                        row.Cell(4).Value = _transferQuery[index - 1].Requested_Date;//requestdate
-                        row.Cell(5).Value = _transferQuery[index - 1].Previous_Target_Date;
-                        row.Cell(6).Value = _transferQuery[index - 1].Transfer_At;
-                        row.Cell(7).Value = _transferQuery[index - 1].New_Target_Date;//new targetdate
-                        row.Cell(8).Value = _transferQuery[index - 1].TransferredDate;
-                        row.Cell(9).Value = _transferQuery[index - 1].Transfered_To;
-                        row.Cell(10).Value = _transferQuery[index - 1].TransferTicketId;
-                        row.Cell(11).Value = _transferQuery[index - 1].Transfer_Remarks;
-                        row.Cell(12).Value = _transferQuery[index - 1].Modified_By;
-                        row.Cell(13).Value = _transferQuery[index - 1].Updated_At;
-                        row.Cell(14).Value = _transferQuery[index - 1].ApprovedBy;
-                        row.Cell(15).Value = _transferQuery[index - 1].ServiceProviderName;
-                        row.Cell(16).Value = _transferQuery[index - 1].ChannnelName;
+                        row.Cell(1).Value = _transferQuery[index - 1].Year;
+                        row.Cell(2).Value = _transferQuery[index - 1].Month;
+                        row.Cell(3).Value = _transferQuery[index - 1].TicketConcernId;
+                        row.Cell(4).Value = _transferQuery[index - 1].Concern_Details;
+                        row.Cell(5).Value = _transferQuery[index - 1].Transfer_Remarks;
+                        row.Cell(6).Value = _transferQuery[index - 1].Transfered_By;
+                        row.Cell(7).Value = _transferQuery[index - 1].ChannnelName;
+                        row.Cell(8).Value = _transferQuery[index - 1].Transfered_To;
+                        row.Cell(9).Value = _transferQuery[index - 1].Trasnferred_By_Channel;
+                        row.Cell(10).Value = _transferQuery[index - 1].Requested_Date;
+                        row.Cell(11).Value = _transferQuery[index - 1].DatePicked;
+                        row.Cell(12).Value = _transferQuery[index - 1].Previous_Target_Date;
+                        row.Cell(13).Value = _transferQuery[index - 1].Transfer_At;
+                        row.Cell(14).Value = _transferQuery[index - 1].TransferredDate;
+                        row.Cell(15).Value = _transferQuery[index - 1].New_Target_Date;
+                        row.Cell(16).Value = _transferQuery[index - 1].ApprovedBy;
+                        row.Cell(17).Value = _transferQuery[index - 1].TransferTicketId;
                     }
 
                     worksheet.Columns().AdjustToContents();

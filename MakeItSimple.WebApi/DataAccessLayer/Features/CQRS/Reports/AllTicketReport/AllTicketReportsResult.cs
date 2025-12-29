@@ -55,6 +55,13 @@
             public string CategoryConcern { get; set; }
             public string Contractor { get; set; }
 
+            public int? Year { get; set; }
+            public int? Month { get; set; }
+            public int? SLAGrading { get; set; }
+            public string SLAPercentage { get; set; }
+            public int? Backjobs { get; set; }
+            public string DatePicked { get; set; }
+
 
 
         }

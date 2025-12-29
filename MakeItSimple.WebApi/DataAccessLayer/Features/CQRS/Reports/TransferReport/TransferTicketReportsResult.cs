@@ -4,11 +4,18 @@
     {
         public record TransferTicketReportsResult
         {
+            public int? Year { get; set; }
+            public int? Month { get; set; }
             public int? TicketConcernId { get; set; }
             public int? TransferTicketId { get; set; }
             public string Concern_Details { get; set; }
             public string Transfered_By { get; set; }
+            public int? Trasnferred_By_ChannelId { get; set; }
+            public string Trasnferred_By_Channel { get; set; }
             public string Transfered_To { get; set; }
+            public int? Trasnferred_To_ChannelId { get; set; }
+            public string Trasnferred_To_Channel { get; set; }
+            public DateTime? DatePicked { get; set; }
             public DateTime? Requested_Date { get; set; }
             public DateTime? New_Target_Date { get; set; }
             public DateTime? Previous_Target_Date { get; set; }
@@ -19,10 +26,11 @@
             public string Modified_By { get; set; }
             public DateTime? Updated_At { get; set; }
             public string ApprovedBy { get; set; }
-            public int? ChannelId { get; set; }
-            public string ChannelName { get; set; }
+            //public int? ChannelId { get; set; }
+            //public string ChannelName { get; set; }
             public int? ServiceProviderId { get; set; }
             public string ServiceProviderName { get; set;}
+         
 
 
         }

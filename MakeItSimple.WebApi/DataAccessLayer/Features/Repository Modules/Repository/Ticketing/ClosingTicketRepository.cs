@@ -218,6 +218,12 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Reposi
                  .Where(x => x.ClosingTicketId == id)
                  .ExecuteDeleteAsync();
         }
+        public async Task RemoveClosingTicket(int? id)
+        {
+            await context.ClosingTickets
+                 .Where(x => x.TicketConcernId == id)
+                 .ExecuteDeleteAsync();
+        }
 
         public async Task CancelClosingTicket(int? id)
         {
@@ -229,7 +235,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Reposi
                 .Where(x => x.Id == id)
                 .Include(x => x.TicketConcern)
                 .ExecuteUpdateAsync(update => update
-                .SetProperty(u => u.IsActive, u => false));
+                .SetProperty(u => u.IsActive, u => false)
+                .SetProperty(u => u.ForClosingAt, u => null));
 
             await context.TicketConcerns
               .Where(x => x.Id == cancelClosing.TicketConcernId)
@@ -298,6 +305,31 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Reposi
                 .SetProperty(u => u.Remarks, u => closingTicket.RejectRemarks));
 
         }
+        //public async Task CancelClosingTicket(ClosingTicket closingTicket)
+        //{
+        //    var rejectClosing = await context.ClosingTickets
+        //        .FirstOrDefaultAsync(x => x.Id == closingTicket.Id);
+
+
+        //    await context.ClosingTickets
+        //        .Where(x => x.Id == closingTicket.Id)
+        //        .ExecuteUpdateAsync(update => update
+        //        .SetProperty(u => u.RejectClosedAt, u => DateTime.Now)
+        //        .SetProperty(u => u.IsRejectClosed, u => true)
+        //        .SetProperty(u => u.RejectClosedBy, u => closingTicket.RejectClosedBy)
+        //        .SetProperty(u => u.RejectRemarks, u => closingTicket.RejectRemarks)
+        //        .SetProperty(u => u.Remarks, u => closingTicket.RejectRemarks)
+        //        .SetProperty(u => u.ForClosingAt, u => null));
+
+
+        //    await context.TicketConcerns
+        //        .Where(x => x.Id == rejectClosing.TicketConcernId)
+        //        .ExecuteUpdateAsync(update => update
+        //        .SetProperty(u => u.IsClosedApprove, u => null)
+        //        .SetProperty(u => u.Remarks, u => closingTicket.RejectRemarks));
+
+        //}
+
 
         public async Task ReturnClosingTicket(int? id, string status, string remarks)
         {

@@ -2,6 +2,7 @@
 using MakeItSimple.WebApi.Common.Caching;
 using MakeItSimple.WebApi.Common.Extension;
 using MakeItSimple.WebApi.Common.Pagination;
+using MakeItSimple.WebApi.Controllers.Authentication;
 using MakeItSimple.WebApi.DataAccessLayer.ValidatorHandler;
 using MakeItSimple.WebApi.Models;
 using MediatR;
@@ -11,6 +12,9 @@ using System.Security.Claims;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserAccount.AddNewUser;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserAccount.GetUser;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserAccount.GetUserByPermission;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserAccount.OneChangePassword;
+using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserAccount.OneResetPassword;
+
 //using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserAccount.UpdateProfilePic;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserAccount.UpdateUser;
 using static MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.UserManagement.UserAccount.UpdateUserStatus;
@@ -249,6 +253,56 @@ namespace MakeItSimple.WebApi.Controllers.UserManagement.UserAccount
                 return Conflict(ex.Message);
             }
         }
+
+
+        [AllowAnonymous]
+        [ApiKeyAuth]
+        [HttpPatch("change-password/{employee}")]
+        public async Task<IActionResult> OneChangePassword(string employee, [FromBody] OneChangePasswordCommand command)
+        {
+            try
+            {
+                command.EmpId = employee;
+
+                var result = await _mediator.Send(command);
+                if (result.IsFailure)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
+            }
+        }
+
+        [AllowAnonymous]
+        [ApiKeyAuth]
+        [HttpPatch("reset-password/{employee}")]
+        public async Task<IActionResult> OneResetPassword(string employee)
+        {
+            try
+            {
+                var result = await _mediator.Send(new OneResetPasswordCommand
+                {
+                    EmpId = employee
+                });
+                if (result.IsFailure)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return Conflict(ex.Message);
+            }
+        }
+
+
 
         //[HttpPut("update-profile")]
         //public async Task<IActionResult> UpdateProfilePic([FromForm] UpdateProfilePicCommand command)

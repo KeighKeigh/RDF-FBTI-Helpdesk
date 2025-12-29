@@ -76,6 +76,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketCreating.
 
                     var userDepartment = await unitOfWork.User.UserDepartment(userIdExist.DepartmentId);
 
+                    var existingBackJob = await context.RequestConcerns.Where(x => x.Id == command.BackJobId).Select(x => x.BackJobId).FirstOrDefaultAsync();
                     //KK
                     foreach (var concern in command.ListOfConcerns)
                     {
@@ -101,6 +102,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketCreating.
                         var ticketSubCategoryList = new List<int?>();
 
                         
+                        
                         var addRequestConcern = new RequestConcern
                         {
                             UserId = command.UserId,
@@ -119,7 +121,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketCreating.
                             IsDone = false,
                             ContactNumber = command.Contact_Number,
                             RequestType = command.Request_Type,
-                            BackJobId = command.BackJobId,
+                            BackJobId =  existingBackJob != null ? existingBackJob : command.BackJobId,
                             Severity = command.Severity,
                             TargetDate = command.TargetDate.ToString() == "" ? null : command.TargetDate,
                             AssignTo = command.AssignTo.ToString() == "" ? null : command.AssignTo,
@@ -323,7 +325,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TicketCreating.
                 else if(command.AssignTo != null)
                 {
                     var dateToday = DateTime.Now;
-                    var approvedDate = DateTime.Today.AddDays(2);
+                    var approvedDate = DateTime.Today.AddDays(7);
                     var requestConcernId = new int();
 
 

@@ -190,34 +190,34 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.ClosedTick
 
             }
 
-            //if (command.AddClosingTicketTechnicians.Any() && command.AddClosingTicketTechnicians.First().Technician_By is not null)
-            //{
+            if (command.AddClosingTicketTechnicians.Any() && command.AddClosingTicketTechnicians.First().Technician_By is not null)
+            {
 
-            //    foreach (var technician in command.AddClosingTicketTechnicians)
-            //    {
-            //        var ticketTechnicianExist = await unitOfWork.ClosingTicket
-            //            .TicketTechnicianExist(technician.TicketTechnicianId);
+                foreach (var technician in command.AddClosingTicketTechnicians)
+                {
+                    var ticketTechnicianExist = await unitOfWork.ClosingTicket
+                        .TicketTechnicianExist(technician.TicketTechnicianId);
 
-            //        if (ticketTechnicianExist is not null)
-            //        {
-            //            ticketTechnicianList.Add(ticketTechnicianExist.Id);
+                    if (ticketTechnicianExist is not null)
+                    {
+                        ticketTechnicianList.Add(ticketTechnicianExist.Id);
 
-            //        }
-            //        else if(ticketTechnicianExist is null && technician.Technician_By is not null)
-            //        {
-            //            var addTicketTechnician = new TicketTechnician
-            //            {
-            //                ClosingTicketId = closingTicketExist.Id,
-            //                TechnicianBy = technician.Technician_By,
+                    }
+                    else if (ticketTechnicianExist is null && technician.Technician_By is not null)
+                    {
+                        var addTicketTechnician = new TicketTechnician
+                        {
+                            ClosingTicketId = closingTicketExist.Id,
+                            TechnicianBy = technician.Technician_By,
 
-            //            };
+                        };
 
-            //            await unitOfWork.ClosingTicket.CreateTicketTechnician(addTicketTechnician, cancellationToken);
+                        await unitOfWork.ClosingTicket.CreateTicketTechnician(addTicketTechnician, cancellationToken);
 
-            //        }
-            //    }
+                    }
+                }
 
-            //}
+            }
 
             //foreach (var category in command.ClosingTicketCategories)
             //{

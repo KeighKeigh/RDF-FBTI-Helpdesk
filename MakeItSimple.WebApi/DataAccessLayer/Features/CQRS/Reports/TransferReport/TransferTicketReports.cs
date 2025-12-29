@@ -64,10 +64,12 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.TransferReport
                         TransferTicketId = x.Id,
                         Concern_Details = x.TicketConcern.RequestConcern.Concern,
                         Transfered_By = x.TransferByUser.Fullname,
+                        Trasnferred_To_ChannelId = x.TicketConcern.RequestConcern.ChannelId,
+                        Trasnferred_To_Channel = x.TicketConcern.RequestConcern.Channel.ChannelName,
                         Transfered_To = x.TransferToUser.Fullname,
                         Requested_Date = x.TicketConcern.CreatedAt,
-                        New_Target_Date = x.Current_Target_Date.Value.Date,
-                        Previous_Target_Date = x.TicketConcern.TargetDate,
+                        New_Target_Date = x.TicketConcern.TargetDate,
+                        Previous_Target_Date = x.Current_Target_Date.Value.Date,
                         Approved_At = x.TransferAt,
                         Transfer_Remarks = x.TransferRemarks,
                         Remarks = x.TransferRemarks,
@@ -76,9 +78,13 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.TransferReport
                         ApprovedBy = x.ApprovedBy,
                         ServiceProviderId = x.TicketConcern.RequestConcern.ServiceProviderId,
                         ServiceProviderName = x.TicketConcern.RequestConcern.ServiceProvider.ServiceProviderName,
-                        ChannelId = x.TicketConcern.RequestConcern.ChannelId,
-                        ChannelName = x.TicketConcern.RequestConcern.Channel.ChannelName,
-                        TransferredDate = x.CreatedAt
+                        Trasnferred_By_Channel = x.TicketConcern.RequestConcern.TransferChannel.ChannelName,
+                        Trasnferred_By_ChannelId = x.TicketConcern.RequestConcern.TransferChannelId,
+                        TransferredDate = x.CreatedAt,
+                        Year = x.TicketConcern.TargetDate.Value.Year,
+                        Month = x.TicketConcern.TargetDate.Value.Month,
+                        DatePicked = x.TicketConcern.DateApprovedAt,
+                        
 
 
 

@@ -21,6 +21,16 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
 
             public async Task<PagedList<OpenTicketReportsResult>> Handle(OpenTicketReportsQuery request, CancellationToken cancellationToken)
             {
+                var requestConcernList = await _context.RequestConcerns
+                    .AsNoTracking()
+                    .Where(x => x.IsActive && x.BackJobId != null).ToListAsync();
+
+                var backJobIds = requestConcernList.Select(x => x.BackJobId.Value).Distinct().ToList();
+
+                var requestConcernWithBackjob = await _context.TicketConcerns
+                    .AsNoTracking()
+                    .Where(x => backJobIds.Contains(x.Id)).ToListAsync();
+
 
                 var results = _context.TicketConcerns
                     .AsNoTrackingWithIdentityResolution()
@@ -48,11 +58,17 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
                         TicketConcernId = t.Id,
                         Concern_Description = t.RequestConcern.Concern,
                         Requestor_Name = t.RequestorByUser.Fullname,
+                        CompanyCode = t.RequestConcern.OneChargingMIS.company_code,
                         CompanyName = t.RequestConcern.OneChargingMIS.company_name,
+                        Business_Unit_Code = t.RequestConcern.OneChargingMIS.business_unit_code,
                         Business_Unit_Name = t.RequestConcern.OneChargingMIS.business_unit_name,
+                        Department_Code = t.RequestConcern.OneChargingMIS.department_code,
                         Department_Name = t.RequestConcern.OneChargingMIS.department_name,
+                        Unit_Code = t.RequestConcern.OneChargingMIS.department_unit_code,
                         Unit_Name = t.RequestConcern.OneChargingMIS.department_unit_name,
+                        SubUnit_Code = t.RequestConcern.OneChargingMIS.sub_unit_code,
                         SubUnit_Name = t.RequestConcern.OneChargingMIS.sub_unit_name,
+                        Location_Code = t.RequestConcern.OneChargingMIS.location_code,
                         Location_Name = t.RequestConcern.OneChargingMIS.location_name,
                         //Category_Description = string.Join(", ", t.RequestConcern.Category.CategoryDescription),
                         Category_Description = string.Join(", ", t.RequestConcern.TicketCategories.Select(rc => rc.Category.CategoryDescription)),
@@ -69,14 +85,25 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
                         Personnel_Id = t.User.Id,
                         Personnel = t.User.Fullname,
                         ChannelId = t.RequestConcern.ChannelId,
+                        DatePicked = t.RequestConcern.DatePicked,
                         StartDate = t.DateApprovedAt,
                         ServiceProvider = t.RequestConcern.ServiceProviderId,
                         AssigTo = t.RequestConcern.AssignToUser.Fullname,
                         AssignTo = t.AssignTo,
+                        ConcernCategory = t.RequestConcern.CategoryConcernName,
+                        RequestType = t.RequestConcern.RequestType,
+                        AgingDays = EF.Functions.DateDiffDay(t.TargetDate.Value.Date, DateTime.Now.Date) <= 0 ? 0 : EF.Functions.DateDiffDay(t.TargetDate.Value.Date, t.Closed_At.Value.Date),
+                        Rating = EF.Functions.DateDiffDay(t.DateApprovedAt.Value.Date, DateTime.Now.Date) >= 31 ? 1
+                        : EF.Functions.DateDiffDay(t.DateApprovedAt.Value.Date, DateTime.Now.Date) >= 15 ? 2
+                        : 3,
+                        Year = t.TargetDate.Value.Year,
+                        Month = t.TargetDate.Value.Month,
+                        Backjobs = 3
                         
 
-                        
-                        
+
+
+
 
                     });
 
@@ -95,11 +122,17 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
                     }
                 }
 
+                foreach (var ticket in results)
+                {
+                    ticket.Backjobs = requestConcernWithBackjob.Count(x => x.Id == ticket.TicketConcernId) >= 3 ? 1
+                        : requestConcernWithBackjob.Count(x => x.Id == ticket.TicketConcernId) >= 1 ? 2
+                        : 3;
+                }
+
                 if (!string.IsNullOrEmpty(request.Search))
                 {
                     results = results
                         .Where(x => x.TicketConcernId.ToString().Contains(request.Search)
-                        || x.Personnel.Contains(request.Search)
                         || x.Concern_Description.Contains(request.Search)
                         || x.Requestor_Name.Contains(request.Search)
                         || x.CompanyName.Contains(request.Search)
@@ -112,11 +145,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
                         || x.SubCategory_Description.Contains(request.Search)
                         || x.Issue_Handler.Contains(request.Search)
                         || x.Channel_Name.Contains(request.Search)
-                        || x.Modified_By.Contains(request.Search)
-                        || x.Personnel_Unit.ToString().Contains(request.Search)
-                        || x.Personnel_Id.ToString().Contains(request.Search)
-                        || x.ChannelId.ToString().Contains(request.Search)
-                        || x.AssigTo.Contains(request.Search));
+                        || x.Modified_By.Contains(request.Search));
+
                 }
 
 
@@ -128,11 +158,17 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
                         TicketConcernId = f.TicketConcernId,
                         Concern_Description = f.Concern_Description,
                         Requestor_Name = f.Requestor_Name,
+                        CompanyCode = f.CompanyCode,
                         CompanyName = f.CompanyName,
+                        Business_Unit_Code = f.Business_Unit_Code,
                         Business_Unit_Name = f.Business_Unit_Name,
+                        Department_Code = f.Department_Code,
                         Department_Name = f.Department_Name,
+                        Unit_Code = f.Unit_Code,
                         Unit_Name = f.Unit_Name,
+                        SubUnit_Code = f.SubUnit_Code,
                         SubUnit_Name = f.SubUnit_Name,
+                        Location_Code = f.Location_Code,
                         Location_Name = f.Location_Name,
                         Category_Description = f.Category_Description,
                         SubCategory_Description = f.SubCategory_Description,
@@ -143,6 +179,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
                         Modified_By = f.Modified_By,
                         Updated_At = f.Updated_At,
                         Remarks = f.Remarks,
+                        DatePicked = f.DatePicked,
                         Aging_Days = f.Aging_Days,
                         Personnel_Unit = f.Personnel_Unit,
                         Personnel_Id = f.Personnel_Id,
@@ -150,6 +187,14 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OpenReport
                         ChannelId = f.ChannelId,
                         StartDate = f.StartDate,
                         AssigTo = f.AssigTo,
+                        Backjobs = f.Backjobs,
+                        Year = f.Year,
+                        Month = f.Month,
+                        RequestType = f.RequestType,
+                        AgingDays = f.AgingDays,
+                        Rating = f.Rating,
+                        
+                        
 
                     }).AsQueryable();
 

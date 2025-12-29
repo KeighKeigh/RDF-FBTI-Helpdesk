@@ -21,6 +21,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Reposi
 
         Task RemoveTicketTechnician(int id, List<int> ticketTechnicianId, CancellationToken cancellationToken);
         Task RemoveClosingApprover(int? id);
+        Task RemoveClosingTicket(int? id);
         Task CancelClosingTicket(int? id);
         Task RejectClosingTicket(ClosingTicket closingTicket);
         Task ReturnClosingTicket(int? id, string status, string remarks);

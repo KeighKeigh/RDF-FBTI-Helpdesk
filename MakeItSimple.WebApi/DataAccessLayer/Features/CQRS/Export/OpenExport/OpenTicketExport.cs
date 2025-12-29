@@ -19,6 +19,18 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OpenExport
 
             public async Task<Unit> Handle(OpenTicketExportCommand request, CancellationToken cancellationToken)
             {
+
+                var requestConcernList = await _context.RequestConcerns
+                    .AsNoTracking()
+                    .Where(x => x.IsActive && x.BackJobId != null).ToListAsync();
+
+                var backJobIds = requestConcernList.Select(x => x.BackJobId.Value).Distinct().ToList();
+
+                var requestConcernWithBackjob = await _context.TicketConcerns
+                    .AsNoTracking()
+                    .Where(x => backJobIds.Contains(x.Id)).ToListAsync();
+
+
                 var openTicket = await _context.TicketConcerns
                     .AsNoTrackingWithIdentityResolution()
                     .AsSplitQuery()
@@ -31,11 +43,17 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OpenExport
                         TicketConcernId = t.Id,
                         Concern_Description = t.RequestConcern.Concern,
                         Requestor_Name = t.RequestorByUser.Fullname,
+                        CompanyCode = t.RequestConcern.OneChargingMIS.company_code,
                         CompanyName = t.RequestConcern.OneChargingMIS.company_name,
+                        Business_Unit_Code = t.RequestConcern.OneChargingMIS.business_unit_code,
                         Business_Unit_Name = t.RequestConcern.OneChargingMIS.business_unit_name,
+                        Department_Code = t.RequestConcern.OneChargingMIS.department_code,
                         Department_Name = t.RequestConcern.OneChargingMIS.department_name,
+                        Unit_Code = t.RequestConcern.OneChargingMIS.department_unit_code,
                         Unit_Name = t.RequestConcern.OneChargingMIS.department_unit_name,
+                        SubUnit_Code = t.RequestConcern.OneChargingMIS.sub_unit_code,
                         SubUnit_Name = t.RequestConcern.OneChargingMIS.sub_unit_name,
+                        Location_Code = t.RequestConcern.OneChargingMIS.location_code,
                         Location_Name = t.RequestConcern.OneChargingMIS.location_name,
                         Category_Description = string.Join(", ", t.RequestConcern.TicketCategories.Select(rc => rc.Category.CategoryDescription)),
                         SubCategory_Description = string.Join(", ", t.RequestConcern.TicketSubCategories.Select(rc => rc.SubCategory.SubCategoryDescription)),
@@ -48,9 +66,20 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OpenExport
                         Updated_At = t.UpdatedAt,
                         Remarks = t.Remarks,
                         Aging_Days = EF.Functions.DateDiffDay(t.TargetDate.Value.Date, DateTime.Now.Date),
+                        Rating = EF.Functions.DateDiffDay(t.DateApprovedAt.Value.Date, DateTime.Now.Date) >= 31 ? 1
+                        : EF.Functions.DateDiffDay(t.DateApprovedAt.Value.Date, DateTime.Now.Date) >= 15 ? 2
+                        : 3,
                         ServiceProvider_Id = t.RequestConcern.ServiceProviderId,
-                        ServiceProvider_Name = t.RequestConcern.ServiceProvider.ServiceProviderName
+                        ServiceProvider_Name = t.RequestConcern.ServiceProvider.ServiceProviderName,
+                        Year = t.TargetDate.Value.Year,
+                        Month = t.TargetDate.Value.Month,
+                        ConcernCategory = t.RequestConcern.CategoryConcernName,
+                        DatePicked = t.RequestConcern.DatePicked.Value.ToString("MM/dd/yyyy hh:mm tt"),
+                        RequestType = t.RequestConcern.RequestType,
                         
+                        
+
+
 
                     }).ToListAsync(cancellationToken);
 
@@ -74,11 +103,31 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OpenExport
                         }
                     }
                 }
+
+                foreach (var ticket in openTicket)
+                {
+                    ticket.Backjobs = requestConcernWithBackjob.Count(x => x.Id == ticket.TicketConcernId) >= 3 ? 1
+                        : requestConcernWithBackjob.Count(x => x.Id == ticket.TicketConcernId) >= 1 ? 2
+                        : 3;
+                }
+
                 if (!string.IsNullOrEmpty(request.Search))
                 {
                     openTicket = openTicket
                         .Where(x => x.TicketConcernId.ToString().Contains(request.Search)
-                        || x.Issue_Handler.Contains(request.Search))
+                        || x.Concern_Description.Contains(request.Search)
+                        || x.Requestor_Name.Contains(request.Search)
+                        || x.CompanyName.Contains(request.Search)
+                        || x.Business_Unit_Name.Contains(request.Search)
+                        || x.Department_Name.Contains(request.Search)
+                        || x.Unit_Name.Contains(request.Search)
+                        || x.SubUnit_Name.Contains(request.Search)
+                        || x.Location_Name.Contains(request.Search)
+                        || x.Category_Description.Contains(request.Search)
+                        || x.SubCategory_Description.Contains(request.Search)
+                        || x.Issue_Handler.Contains(request.Search)
+                        || x.Channel_Name.Contains(request.Search)
+                        || x.Modified_By.Contains(request.Search))
                         .ToList();
                 }
 
@@ -92,11 +141,17 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OpenExport
                         TicketConcernId = r.TicketConcernId,
                         Concern_Description = r.Concern_Description,
                         Requestor_Name = r.Requestor_Name,
+                        CompanyCode = r.CompanyCode,
                         CompanyName = r.CompanyName,
+                        Business_Unit_Code = r.Business_Unit_Code,
                         Business_Unit_Name = r.Business_Unit_Name,
+                        Department_Code = r.Department_Code,
                         Department_Name = r.Department_Name,
+                        Unit_Code = r.Unit_Code,
                         Unit_Name = r.Unit_Name,
+                        SubUnit_Code = r.SubUnit_Code,
                         SubUnit_Name = r.SubUnit_Name,
+                        Location_Code = r.Location_Code,
                         Location_Name = r.Location_Name,
                         Category_Description = r.Category_Description,
                         SubCategory_Description = r.SubCategory_Description,
@@ -109,6 +164,13 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OpenExport
                         Remarks = r.Remarks,
                         Aging_Days = r.Aging_Days,
                         ServiceProvider_Name = r.ServiceProvider_Name,
+                        Year = r.Year,
+                        Month = r.Month,
+                        ConcernCategory = r.ConcernCategory,
+                        DatePicked = r.DatePicked,
+                        Rating = r.Rating,
+                        RequestType = r.RequestType,
+                        Backjobs = r.Backjobs
                         
                     }).ToList();
 
@@ -117,28 +179,30 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OpenExport
                     var worksheet = workbook.Worksheets.Add($"Open Ticket Report");
                     var headers = new List<string>
                     {
-                        "TicketConcernId",
-                        "Concern Description",
-                        "Requestor Name",
-                        "Company Name", 
-                        "Business Unit Name",
-                        "Department Name",
-                        "Unit Name",
-                        "Sub Unit Name",
-                        "Location Name",
-                        "Service Provider",
-                        "Channel Name",
-                        "Category Description",
-                        "Sub Category Description",
-                        "Issue Handler",
-                        "Target Date",
-                        "Created At",
-                        "Modified By",
-                        "Updated At",
-                        "Remarks",
-                        "Aging Days",
-                        
-                        
+                        "YEAR",
+                        "MONTH",
+                        "TICKET NUMBER",
+                        "CHANNEL",
+                        "ISSUE HANDLER",
+                        "REQUESTOR",
+                        "COMPANY",
+                        "DEPARTMENT",
+                        "LOCATION",
+                        "BUSINESS UNIT",
+                        "UNIT",
+                        "SUB-UNIT",
+                        "CONCERN DETAILS",
+                        "CATEGORY",
+                        "SUB-CATEGORY",
+                        "CONCERN CATEGORY",
+                        "DATE REQUESTED",
+                        "DATE PICKED",
+                        "TARGET DATE",
+                        "REQUEST TYPE",
+                        "AGING DAYS",
+                        "RATING",
+                        "BACK JOBS"
+
                     };
 
                     var range = worksheet.Range(worksheet.Cell(1, 1), worksheet.Cell(1, headers.Count));
@@ -156,27 +220,30 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OpenExport
                     {
                         var row = worksheet.Row(index + 1);
 
-                        row.Cell(1).Value = resultOpenTicket[index - 1].TicketConcernId;
-                        row.Cell(2).Value = resultOpenTicket[index - 1].Concern_Description;
-                        row.Cell(3).Value = resultOpenTicket[index - 1].Requestor_Name;
-                        row.Cell(4).Value = resultOpenTicket[index - 1].CompanyName;
-                        row.Cell(5).Value = resultOpenTicket[index - 1].Business_Unit_Name;
-                        row.Cell(6).Value = resultOpenTicket[index - 1].Department_Name;
-                        row.Cell(7).Value = resultOpenTicket[index - 1].Unit_Name;
-                        row.Cell(8).Value = resultOpenTicket[index - 1].SubUnit_Name;
-                        row.Cell(9).Value = resultOpenTicket[index - 1].Location_Name;
-                        row.Cell(10).Value = resultOpenTicket[index - 1].ServiceProvider_Name;
-                        row.Cell(11).Value = resultOpenTicket[index - 1].Channel_Name;
-                        row.Cell(12).Value = resultOpenTicket[index - 1].Category_Description;
-                        row.Cell(13).Value = resultOpenTicket[index - 1].SubCategory_Description;
-                        row.Cell(14).Value = resultOpenTicket[index - 1].Issue_Handler;
-                        row.Cell(15).Value = resultOpenTicket[index - 1].Target_Date;
-                        row.Cell(16).Value = resultOpenTicket[index - 1].Created_At;
-                        row.Cell(17).Value = resultOpenTicket[index - 1].Modified_By;
-                        row.Cell(18).Value = resultOpenTicket[index - 1].Updated_At;
-                        row.Cell(19).Value = resultOpenTicket[index - 1].Remarks;
-                        row.Cell(20).Value = resultOpenTicket[index - 1].Aging_Days;
-                        
+                        row.Cell(1).Value = resultOpenTicket[index - 1].Year;
+                        row.Cell(2).Value = resultOpenTicket[index - 1].Month;
+                        row.Cell(3).Value = resultOpenTicket[index - 1].TicketConcernId;
+                        row.Cell(4).Value = resultOpenTicket[index - 1].Channel_Name;
+                        row.Cell(5).Value = resultOpenTicket[index - 1].Issue_Handler;
+                        row.Cell(6).Value = resultOpenTicket[index - 1].Requestor_Name;
+                        row.Cell(7).Value = $"{resultOpenTicket[index - 1].CompanyCode} - {resultOpenTicket[index - 1].CompanyName}";
+                        row.Cell(8).Value = $"{resultOpenTicket[index - 1].Department_Code} - {resultOpenTicket[index - 1].Department_Name}";
+                        row.Cell(9).Value = $"{resultOpenTicket[index - 1].Location_Code} - {resultOpenTicket[index - 1].Location_Name}";
+                        row.Cell(10).Value = $"{resultOpenTicket[index - 1].Business_Unit_Code} - {resultOpenTicket[index - 1].Business_Unit_Name}";
+                        row.Cell(11).Value = $"{resultOpenTicket[index - 1].Unit_Code} - {resultOpenTicket[index - 1].Unit_Name}";
+                        row.Cell(12).Value = $"{resultOpenTicket[index - 1].SubUnit_Code} - {resultOpenTicket[index - 1].SubUnit_Name}";
+                        row.Cell(13).Value = resultOpenTicket[index - 1].Concern_Description;
+                        row.Cell(14).Value = resultOpenTicket[index - 1].Category_Description;
+                        row.Cell(15).Value = resultOpenTicket[index - 1].SubCategory_Description;
+                        row.Cell(16).Value = resultOpenTicket[index - 1].ConcernCategory;
+                        row.Cell(17).Value = resultOpenTicket[index - 1].Created_At;
+                        row.Cell(18).Value = resultOpenTicket[index - 1].DatePicked;
+                        row.Cell(19).Value = resultOpenTicket[index - 1].Target_Date;
+                        row.Cell(20).Value = resultOpenTicket[index - 1].RequestType;
+                        row.Cell(21).Value = resultOpenTicket[index - 1].Aging_Days;
+                        row.Cell(22).Value = resultOpenTicket[index - 1].Rating;
+                        row.Cell(23).Value = resultOpenTicket[index - 1].Backjobs;
+
 
                     }
 

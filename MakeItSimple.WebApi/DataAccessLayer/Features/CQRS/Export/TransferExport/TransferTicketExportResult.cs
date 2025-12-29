@@ -4,6 +4,8 @@
     {
         public record TransferTicketExportResult
         {
+            public int? Year { get; set; }
+            public int? Month { get; set; }
             public Guid? UserId { get; set; }
             public int? Unit { get; set; }
             public int? TicketConcernId { get; set; }
@@ -25,6 +27,13 @@
             public int? ServiceProviderId { get; set; }
             public string ServiceProviderName { get; set;}
             public string TransferredDate { get; set; }
+
+            public int? Trasnferred_By_ChannelId { get; set; }
+            public string Trasnferred_By_Channel { get; set; }
+            public int? Trasnferred_To_ChannelId { get; set; }
+            public string Trasnferred_To_Channel { get; set; }
+            public DateTime? DatePicked { get; set; }
+
         }
     }
 }

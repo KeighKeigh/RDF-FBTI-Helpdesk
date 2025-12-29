@@ -1,4 +1,5 @@
 ﻿using MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Repository.Pms_Transaction;
+using MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Repository_Interface.OneRdf;
 using MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Repository_Interface.Phase_Two;
 using MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Repository_Interface.Setup.Phase_One;
 using MakeItSimple.WebApi.DataAccessLayer.Features.Repository_Modules.Repository_Interface.Setup.Phase_Two;
@@ -19,6 +20,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Unit_Of_Work
         ISubCategoryRepository SubCategory { get; }
         IReceiverRepository Receiver { get; }
         IBusinessUnitRepository BusinessUnit { get; }
+        IPendingRequestRepository PendingRequests { get; }
 
 
         IRequestTicketRepository RequestTicket { get; }

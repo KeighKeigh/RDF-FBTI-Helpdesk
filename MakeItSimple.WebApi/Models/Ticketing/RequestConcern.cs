@@ -64,7 +64,7 @@ namespace MakeItSimple.WebApi.Models.Ticketing
 
         public int? ReqSubUnitId { get; set; }
 
-
+        public DateTime? DatePicked { get; set; }
 
         public int? ChannelId { get; set; }
         public virtual Channel Channel { get; set; }

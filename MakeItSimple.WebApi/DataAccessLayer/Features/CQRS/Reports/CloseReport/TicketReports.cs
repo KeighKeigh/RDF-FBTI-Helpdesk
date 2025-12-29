@@ -3,6 +3,7 @@ using MakeItSimple.WebApi.Common;
 using MakeItSimple.WebApi.Common.ConstantString;
 using MakeItSimple.WebApi.Common.Pagination;
 using MakeItSimple.WebApi.DataAccessLayer.Data.DataContext;
+using MakeItSimple.WebApi.Models.OneCharging;
 using MakeItSimple.WebApi.Models.Ticketing;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,17 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.CloseReport
 
             public async Task<PagedList<Reports>> Handle(TicketReportsQuery request, CancellationToken cancellationToken)
             {
+
+                var requestConcernList = await _context.RequestConcerns
+                    .AsNoTracking()
+                    .Where(x => x.IsActive && x.BackJobId != null).ToListAsync();
+
+                var backJobIds = requestConcernList.Select(x => x.BackJobId.Value).Distinct().ToList();
+
+                var requestConcernWithBackjob = await _context.RequestConcerns
+                    .AsNoTracking()
+                    .Where(x => backJobIds.Contains(x.Id)).ToListAsync();
+
 
 
 
@@ -60,15 +72,40 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.CloseReport
                         ChannelId = x.TicketConcern.RequestConcern.ChannelId,
                         AssignTo = x.TicketConcern.AssignTo,
                         ChannelName = x.TicketConcern.RequestConcern.Channel.ChannelName,
-                        Technician1 = x.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(0).Take(1).FirstOrDefault(),
-                        Technician2 = x.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(1).Take(1).FirstOrDefault(),
-                        Technician3 = x.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(2).Take(1).FirstOrDefault(),
+                        Technicians = string.Join(", ", x.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname)),
+                        //Technician1 = x.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(0).Take(1).FirstOrDefault(),
+                        //Technician2 = x.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(1).Take(1).FirstOrDefault(),
+                        //Technician3 = x.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname).Skip(2).Take(1).FirstOrDefault(),
                         IsStore = x.TicketConcern.RequestConcern.User.IsStore,
                         Requestor = x.TicketConcern.RequestorByUser.Fullname,
                         CategoryConcern = x.CategoryConcernName,
-                        Department = x.TicketConcern.RequestConcern.OneChargingMIS.department_name,
-                        Notes =x.Notes
-
+                        Company_Code = x.TicketConcern.RequestConcern.OneChargingMIS.company_code,
+                        Company_Name = x.TicketConcern.RequestConcern.OneChargingMIS.company_name,
+                        Department_Code = x.TicketConcern.RequestConcern.OneChargingMIS.department_code,
+                        Department_Name = x.TicketConcern.RequestConcern.OneChargingMIS.department_name,
+                        Location_Code = x.TicketConcern.RequestConcern.OneChargingMIS.location_code,
+                        Location_Name = x.TicketConcern.RequestConcern.OneChargingMIS.location_name,
+                        BusinessUnit_Code = x.TicketConcern.RequestConcern.OneChargingMIS.business_unit_code,
+                        BusinessUnit_Name = x.TicketConcern.RequestConcern.OneChargingMIS.business_unit_name,
+                        Unit_Code = x.TicketConcern.RequestConcern.OneChargingMIS.department_unit_code,
+                        Unit_Name = x.TicketConcern.RequestConcern.OneChargingMIS.department_unit_name,
+                        SubUnit_Code = x.TicketConcern.RequestConcern.OneChargingMIS.sub_unit_code,
+                        SubUnit_Name = x.TicketConcern.RequestConcern.OneChargingMIS.sub_unit_name,
+                        DateRequested = x.TicketConcern.RequestConcern.CreatedAt.ToString("MM/dd/yyyy hh:mm:tt"),
+                        Notes =x.Notes,
+                        Rating =  EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) >= 31 ? 1
+                        : EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) >= 15 ? 2
+                        : 3,
+                        SLAPercentage = EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) >= 31 ? "95%"
+                        : EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) >= 24 && EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) <= 30 ? "96%"
+                        : EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) >= 16 && EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) <= 23 ? "97%"
+                        : EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) >= 11 && EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) <= 15 ? "98%"
+                        : EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) >= 6 && EF.Functions.DateDiffDay(x.TicketConcern.TargetDate.Value.Date, x.ClosingAt.Value.Date) <= 10 ? "99%"
+                        : "100%",
+                        Resolution = x.TicketConcern.RequestConcern.Resolution,
+                        Contractor = x.Contractor,
+                        DatePicked = x.TicketConcern.RequestConcern.DatePicked,
+                        RequestType = x.TicketConcern.RequestConcern.RequestType,
                     });
 
 
@@ -87,6 +124,13 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.CloseReport
                     }
                 }
 
+                foreach (var ticket in closingTicket)
+                {
+                    ticket.Backjobs = requestConcernWithBackjob.Count(x => x.Id == ticket.Ticket_Number) >= 3 ? 1
+                        : requestConcernWithBackjob.Count(x => x.Id == ticket.Ticket_Number) >= 1 ? 2
+                        : 3;
+                }
+
 
                 if (!string.IsNullOrEmpty(request.Search))
                 {
@@ -97,12 +141,13 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.CloseReport
                         || x.ChannelName.Contains(request.Search));
                 }
 
+
                 var results = closingTicket.Select(x => new Reports
                 {
                     Year = x.Year,
                     Month = x.Month,
-                    Start_Date = $"{x.Month}-01-{x.Year}",
-                    End_Date = $"{x.Month}-{DateTime.DaysInMonth(x.Year, x.Month)}-{x.Year}",
+                    //Start_Date = $"{x.Month}-01-{x.Year}",
+                    //End_Date = $"{x.Month}-{DateTime.DaysInMonth(x.Year, x.Month)}-{x.Year}",
                     Personnel = x.Personnel,
                     Ticket_Number = x.Ticket_Number,
                     Description = x.Description,
@@ -117,16 +162,37 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.CloseReport
                     Aging_Day = x.Aging_Day,
                     StartDate = x.StartDate,
                     ClosedDate = x.ClosedDate,
-                    Technician1 = x.Technician1,
-                    Technician2 = x.Technician2,
-                    Technician3 = x.Technician3,
-                    Department = x.Department,
+                    Technicians = x.Technicians,
+                    //Technician1 = x.Technician1,
+                    //Technician2 = x.Technician2,
+                    //Technician3 = x.Technician3,
                     AssignTo = x.AssignTo,
                     IsStore = x.IsStore,
                     CategoryConcern = x.CategoryConcern,
                     ForClosedDate = x.ForClosedDate,
                     Notes = x.Notes,
-
+                    Company_Code = x.Company_Code,
+                    Company_Name = x.Company_Name,
+                    Department_Code = x.Department_Code,
+                    Department_Name = x.Department_Name,   
+                    Location_Code = x.Location_Code,
+                    Location_Name = x.Location_Name,
+                    BusinessUnit_Code = x.BusinessUnit_Code,
+                    BusinessUnit_Name = x.BusinessUnit_Name,
+                    Unit_Code = x.Unit_Code,
+                    Unit_Name = x.Unit_Name,
+                    SubUnit_Code = x.SubUnit_Code,
+                    SubUnit_Name = x.SubUnit_Name,
+                    DateRequested = x.DateRequested,
+                    Rating = x.Rating,
+                    SLAPercentage = x.SLAPercentage,
+                    Resolution = x.Resolution,
+                    Contractor = x.Contractor,
+                    Backjobs = x.Backjobs,
+                    ChannelName  = x.ChannelName,
+                    Requestor = x.Requestor,
+                    DatePicked = x.DatePicked,
+                    RequestType = x.RequestType
 
 
 

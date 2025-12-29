@@ -95,7 +95,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Data.DataContext
         public virtual DbSet<CategoryConcernChannel> CategoryConcernChannels { get; set; }
         public virtual DbSet<Contractor> Contractors { get; set; }
         public virtual DbSet<ContractorChannel> ContractorChannels { get; set; }
-
+        public virtual DbSet<PendingRequest> PendingRequests { get; set; }
 
 
 

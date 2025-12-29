@@ -22,12 +22,13 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OnHoldReport
             public async Task<PagedList<OnHoldTicketReportResult>> Handle(OnHoldTicketReportQuery request, CancellationToken cancellationToken)
             {
 
+
                 IQueryable<TicketOnHold> query = _context.TicketOnHolds
                     .AsNoTrackingWithIdentityResolution()
                     .Include(q => q.TicketConcern)
                     .ThenInclude(q => q.RequestConcern)
                     .Include(q => q.AddedByUser)
-                    .Where(x => x.IsHold == true && x.ResumeAt == null)
+                    .Where(x => x.IsHold == true )
                     .AsSplitQuery();
 
                 if (request.ServiceProvider is not null)
@@ -69,7 +70,9 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.OnHoldReport
                         ServiceProviderId = r.TicketConcern.RequestConcern.ServiceProviderId,
                         ServiceProviderName = r.TicketConcern.RequestConcern.ServiceProvider.ServiceProviderName,
                         ChannelId = r.TicketConcern.RequestConcern.ChannelId,
-                        ChannelName = r.TicketConcern.RequestConcern.Channel.ChannelName
+                        ChannelName = r.TicketConcern.RequestConcern.Channel.ChannelName,
+                        Year = r.TicketConcern.TargetDate.Value.Year,
+                        Month = r.TicketConcern.TargetDate.Value.Month,
                     });
 
 

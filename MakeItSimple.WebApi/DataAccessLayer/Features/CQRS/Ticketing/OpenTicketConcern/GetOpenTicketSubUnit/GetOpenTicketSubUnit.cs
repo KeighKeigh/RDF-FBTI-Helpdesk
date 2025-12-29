@@ -42,11 +42,11 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.OpenTicket
 
                 }
 
-                IQueryable<ClosingTicket> isClosingTIcket = _context.ClosingTickets.Where(x => x.IsClosing == false && x.IsRejectClosed == false).AsNoTrackingWithIdentityResolution().AsSplitQuery();
+                IQueryable<ClosingTicket> isClosingTIcket = _context.ClosingTickets.Where(x => x.IsActive == true && x.IsClosing == false && x.IsRejectClosed == false && x.ForClosingAt != null).AsNoTrackingWithIdentityResolution().AsSplitQuery();
 
-                IQueryable<TicketOnHold> onHoldTicket = _context.TicketOnHolds.Where(x => x.IsHold == false && x.IsRejectOnHold == false).AsNoTrackingWithIdentityResolution().AsSplitQuery();
+                IQueryable<TicketOnHold> onHoldTicket = _context.TicketOnHolds.Where(x => x.IsActive == true && x.IsHold == false && x.IsRejectOnHold == false).AsNoTrackingWithIdentityResolution().AsSplitQuery();
 
-                IQueryable<TransferTicketConcern> transferTIcket = _context.TransferTicketConcerns.Where(x => x.IsTransfer == false && x.IsRejectTransfer == false).AsNoTrackingWithIdentityResolution().AsSplitQuery();
+                IQueryable<TransferTicketConcern> transferTIcket = _context.TransferTicketConcerns.Where(x => x.IsActive == true && x.IsTransfer == false && x.IsRejectTransfer == false).AsNoTrackingWithIdentityResolution().AsSplitQuery();
 
 
                 if (openTicketsQuery.Any())

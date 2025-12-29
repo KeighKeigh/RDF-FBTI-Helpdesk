@@ -47,7 +47,9 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OnHoldExport
                         ServiceProviderId = r.TicketConcern.RequestConcern.ServiceProviderId,
                         ServiceProviderName = r.TicketConcern.RequestConcern.ServiceProvider.ServiceProviderName,
                         ChannelId = r.TicketConcern.RequestConcern.ChannelId,
-                        ChannelName = r.TicketConcern.RequestConcern.Channel.ChannelName
+                        ChannelName = r.TicketConcern.RequestConcern.Channel.ChannelName,
+                        Year = r.TicketConcern.TargetDate.Value.Year,
+                        Month = r.TicketConcern.TargetDate.Value.Month
 
 
                     }).ToListAsync();
@@ -93,6 +95,8 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OnHoldExport
                         ServiceProviderName = r.ServiceProviderName,
                         ChannelId = r.ChannelId,
                         ChannelName = r.ChannelName,
+                        Year = r.Year,
+                        Month = r.Month,
                     }).ToList();
 
                 using (var workbook = new XLWorkbook())
@@ -100,16 +104,18 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OnHoldExport
                     var worksheet = workbook.Worksheets.Add($"OnHold Ticket Report");
                     var headers = new List<string>
                     {
-                        "Ticket Number",
-                        "Description",
+                        "YEAR",
+                        "MONTH",
+                        "TICKET NUMBER",
+                        "CONCERN DETAILS",
                         "Reason",
                         "Hold By",
+                        "Channel",
                         "Hold Date",
                         "Resume Date",
                         "Approved Date",
                         "Approved By",
-                        "Service Provider",
-                        "Channel"
+                        
                         
                     };
 
@@ -129,16 +135,18 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Export.OnHoldExport
                     {
                         var row = worksheet.Row(index + 1);
 
-                        row.Cell(1).Value = finalQuery[index - 1].TicketConcernId;
-                        row.Cell(2).Value = finalQuery[index - 1].Concerns;
-                        row.Cell(3).Value = finalQuery[index - 1].Reason;
-                        row.Cell(4).Value = finalQuery[index - 1].Added_By;
-                        row.Cell(5).Value = finalQuery[index - 1].Created_At;
-                        row.Cell(6).Value = finalQuery[index - 1].Resume_At;
-                        row.Cell(7).Value = finalQuery[index - 1].ApprovedAt;
-                        row.Cell(8).Value = finalQuery[index - 1].ApprovedBy;
-                        row.Cell(9).Value = finalQuery[index - 1].ServiceProviderName;
-                        row.Cell(10).Value = finalQuery[index - 1].ChannelName;
+                        row.Cell(1).Value = finalQuery[index - 1].Year;
+                        row.Cell(2).Value = finalQuery[index - 1].Month;
+                        row.Cell(3).Value = finalQuery[index - 1].TicketConcernId;
+                        row.Cell(4).Value = finalQuery[index - 1].Concerns;
+                        row.Cell(5).Value = finalQuery[index - 1].Reason;
+                        row.Cell(6).Value = finalQuery[index - 1].Added_By;
+                        row.Cell(7).Value = finalQuery[index - 1].ChannelName;
+                        row.Cell(8).Value = finalQuery[index - 1].Created_At;
+                        row.Cell(9).Value = finalQuery[index - 1].Resume_At;
+                        row.Cell(10).Value = finalQuery[index - 1].ApprovedAt;
+                        row.Cell(11).Value = finalQuery[index - 1].ApprovedBy;
+                        
                     }
 
 

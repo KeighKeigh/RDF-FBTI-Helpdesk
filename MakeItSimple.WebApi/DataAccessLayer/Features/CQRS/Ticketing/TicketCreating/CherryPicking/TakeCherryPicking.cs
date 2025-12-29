@@ -58,7 +58,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.TicketCrea
 
 
 
-                var approvedDate = DateTime.Now.AddDays(2);
+                var approvedDate = DateTime.Now.AddDays(7);
 
                 var handlerDetails = await unitOfWork.User
                         .UserExist(command.AssignTo);
@@ -102,6 +102,7 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.CQRS.Ticketing.TicketCrea
                                 ModifiedBy = command.AssignTo,
                                 TargetDate = command.TargetDate.ToString() == "" ? null : command.TargetDate,
                                 AssignTo = command.AssignTo.ToString() == "" ? null : command.AssignTo,
+                                DatePicked = DateTime.Now,
                             };
                             await unitOfWork.RequestTicket.UpdateRequestConcern(updateRequest, cancellationToken);
 

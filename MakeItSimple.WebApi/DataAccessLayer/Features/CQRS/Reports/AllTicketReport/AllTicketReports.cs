@@ -24,7 +24,17 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                 var combineTicketReports = new List<AllTicketReportsResult>();
 
                 //var cutoffTime = TimeSpan.FromHours(16);
+                var requestConcernList = await _context.RequestConcerns
+                    .AsNoTracking()
+                    .Where(x => x.IsActive && x.BackJobId != null).ToListAsync();
 
+                var backJobIds = requestConcernList.Select(x => x.BackJobId.Value).Distinct().ToList();
+
+                var requestConcernWithBackjob = await _context.RequestConcerns
+                    .AsNoTracking()
+                    .Where(x => backJobIds.Contains(x.Id)).ToListAsync();
+
+                
                 var openTicketQuery = await _context.TicketConcerns
                     .AsNoTrackingWithIdentityResolution()
                     .Include(t => t.RequestConcern)
@@ -74,6 +84,10 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         AssignTo = o.RequestConcern.AssignToUser.Fullname,
                         ServiceProviderName = o.RequestConcern.ServiceProvider.ServiceProviderName,
                         Resolution = o.RequestConcern.Resolution,
+                        Year = o.TargetDate.Value.Year,
+                        Month = o.TargetDate.Value.Month,
+                        DatePicked = o.RequestConcern.DatePicked.Value.ToString("MM/dd/yyyy hh:tt:mm"),
+                        //Backjobs = requestConcernWithBackjob.Where(x => x.Id == o.Id).Count()
                         
                         
                         
@@ -126,7 +140,10 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         StartDate = ct.TicketConcern.DateApprovedAt.Value.ToString("MM/dd/yyyy hh:tt:mm"),
                         ServiceProvider = ct.TicketConcern.RequestConcern.ServiceProviderId.Value,
                         AssignTo = ct.TransferToUser.Fullname,
-                        ServiceProviderName = ct.TicketConcern.RequestConcern.ServiceProvider.ServiceProviderName
+                        ServiceProviderName = ct.TicketConcern.RequestConcern.ServiceProvider.ServiceProviderName,
+                        Year = ct.TicketConcern.TargetDate.Value.Year,
+                        Month = ct.TicketConcern.TargetDate.Value.Month,
+                        DatePicked = ct.TicketConcern.RequestConcern.DatePicked.Value.ToString("MM/dd/yyyy hh:tt:mm"),
                     }).ToListAsync();
 
                 var onHoldTicketQuery = await _context.TicketOnHolds
@@ -175,7 +192,10 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         StartDate = ct.TicketConcern.DateApprovedAt.Value.ToString("MM/dd/yyyy hh:tt:mm"),
                         ServiceProvider = ct.TicketConcern.RequestConcern.ServiceProviderId.Value,
                         AssignTo = ct.TicketConcern.RequestConcern.AssignToUser.Fullname,
-                        ServiceProviderName = ct.TicketConcern.RequestConcern.ServiceProvider.ServiceProviderName
+                        ServiceProviderName = ct.TicketConcern.RequestConcern.ServiceProvider.ServiceProviderName,
+                        Year = ct.TicketConcern.TargetDate.Value.Year,
+                        Month = ct.TicketConcern.TargetDate.Value.Month,
+                        DatePicked = ct.TicketConcern.RequestConcern.DatePicked.Value.ToString("MM/dd/yyyy hh:tt:mm"),
 
                     }).ToListAsync();
 
@@ -234,10 +254,18 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         ClosingStatus = ct.TicketConcern.TargetDate.Value.Date >= ct.TicketConcern.Closed_At.Value.Date ? "On-Time"
                         : "Delayed",
                         Resolution = ct.TicketConcern.RequestConcern.Resolution,
-                        //Technicians = string.Join(", ", ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname)),
+                        Technicians = string.Join(", ", ct.ticketTechnicians.Select(t => t.TechnicianByUser.Fullname)),
                         CategoryConcern = ct.TicketConcern.RequestConcern.CategoryConcernName,
-                        Contractor = ct.Contractor
-
+                        Contractor = ct.Contractor,
+                        Year = ct.TicketConcern.TargetDate.Value.Year,
+                        Month = ct.TicketConcern.TargetDate.Value.Month,
+                        SLAPercentage = EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) >= 31 ? "95%"
+                        : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) >= 24 && EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) <= 30 ? "96%"
+                        : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) >= 16 && EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) <= 23 ? "97%"
+                        : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) >= 11 && EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) <= 15 ? "98%"
+                        : EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) >= 6 && EF.Functions.DateDiffDay(ct.TicketConcern.TargetDate.Value.Date, ct.ClosingAt.Value.Date) <= 10 ? "99%"
+                        : "100%",
+                        DatePicked = ct.TicketConcern.RequestConcern.DatePicked.Value.ToString("MM/dd/yyyy hh:tt:mm"),
                     }).ToListAsync(); 
 
 
@@ -439,7 +467,12 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                 //{
                 //    combineTicketReports.Add(list);
                 //}
-                
+                foreach (var ticket in combineTicketReports)
+                {
+                    ticket.Backjobs = requestConcernWithBackjob.Count(x => x.Id.ToString() == ticket.TicketConcernId) >= 3 ? 1
+                        : requestConcernWithBackjob.Count(x => x.Id.ToString() == ticket.TicketConcernId) >= 1 ? 2
+                        : 3 ;
+                }
                 var results =  combineTicketReports
                     .OrderBy(x => x.Transaction_Date)
                     .ThenBy(x => x.TicketConcernId)
@@ -483,10 +516,16 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Reports.AllTicketReport
                         ServiceProviderName = r.ServiceProviderName,
                         ClosingStatus = r.ClosingStatus,
                         Resolution = r.Resolution,
-                        //Technicians = r.Technicians,
+                        Technicians = r.Technicians,
                         CategoryConcern = r.CategoryConcern,
                         ForClosedDate = r.ForClosedDate,
-                        Contractor = r.Contractor
+                        Contractor = r.Contractor,
+                        Year = r.Year,
+                        Month = r.Month,
+                        SLAPercentage = r.SLAPercentage,
+                        Backjobs = r.Backjobs,
+                        DatePicked = r.DatePicked
+
                        
 
                     }).ToList();

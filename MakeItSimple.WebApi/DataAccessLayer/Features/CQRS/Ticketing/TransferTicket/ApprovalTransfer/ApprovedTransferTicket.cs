@@ -99,9 +99,12 @@ namespace MakeItSimple.WebApi.DataAccessLayer.Features.Ticketing.TransferTicket.
                     
                     var channelUser = await _context.ChannelUsers.Include(x => x.Channel)
                         .Where(x => x.UserId == transferTicketExist.TransferTo && x.Channel.IsActive == true).FirstOrDefaultAsync();
+
+                    var previousChannelID = transferTicketExist.TicketConcern.RequestConcern.ChannelId;
                     var updateRequestConcern = new RequestConcern
                     {
                         Id = transferTicketExist.TicketConcern.RequestConcern.Id,
+                        TransferChannelId = previousChannelID,
                         ChannelId = channelUser.ChannelId,
                         AssignTo = channelUser.UserId,
                         
