@@ -477,3 +477,4 @@ $RECYCLE.BIN/
 *.lnk
 
 
+/MakeItSimple.WebApi/appsettings.json
